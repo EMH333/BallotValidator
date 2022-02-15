@@ -6,6 +6,8 @@ import "log"
 func stepTwo(votes []Vote, alreadyVoted *[]string) ([]Vote, []Vote, []string, Summary) {
 	var initialSize int = len(votes)
 
+	var logMessages []string
+
 	var validVotes []Vote
 	var invalidVotes []Vote
 	var votedToday []string
@@ -13,10 +15,10 @@ func stepTwo(votes []Vote, alreadyVoted *[]string) ([]Vote, []Vote, []string, Su
 	for _, v := range votes {
 		if contains(alreadyVoted, v.ONID) || contains(&votedToday, v.ONID) {
 			invalidVotes = append(invalidVotes, v)
+			logMessages = append(logMessages, "Invalid vote from "+v.ONID+" with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
 		} else {
 			validVotes = append(validVotes, v)
 			votedToday = append(votedToday, v.ONID)
-			//TODO make note of submission ID and log it for future reference
 		}
 	}
 
@@ -27,5 +29,5 @@ func stepTwo(votes []Vote, alreadyVoted *[]string) ([]Vote, []Vote, []string, Su
 	log.Println("Step 2: Invalid votes:", len(invalidVotes))
 	log.Println("Step 2: Valid votes:", len(validVotes))
 
-	return validVotes, invalidVotes, votedToday, Summary{len(validVotes) + len(invalidVotes), len(validVotes), len(invalidVotes)}
+	return validVotes, invalidVotes, votedToday, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes), log: logMessages}
 }

@@ -20,12 +20,14 @@ type Vote struct {
 	Raw       []string
 	Timestamp time.Time
 	ONID      string
+	ID        string
 }
 
 type Summary struct {
 	processed int
 	valid     int
 	invalid   int
+	log       []string
 }
 
 var validVotersGraduate []string
@@ -198,6 +200,10 @@ func storeSummary(summary Summary, filename string) {
 	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
 	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
 	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
+	f.WriteString("\n\nLog Messages:\n")
+	for _, message := range summary.log {
+		f.WriteString(message + "\n")
+	}
 }
 
 func storeAlreadyVoted(alreadyVoted []string, filename string) {

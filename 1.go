@@ -27,5 +27,5 @@ func stepOne(votes []Vote, validVotersGraduate, validVotersUndergraduate, validV
 	log.Println("Step 1: Invalid votes:", len(invalidVotes))
 	log.Println("Step 1: Valid votes:", len(validVotes))
 
-	return validVotes, invalidVotes, Summary{len(validVotes) + len(invalidVotes), len(validVotes), len(invalidVotes)}
+	return validVotes, invalidVotes, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes)}
 }

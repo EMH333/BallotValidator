@@ -15,6 +15,7 @@ var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2022-Feb-14 00:00:01")
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
 const IMPORT_ONID = 74
 const IMPORT_COMPLETE = 6
+const IMPORT_ID = 8
 
 func loadVotesCSV(fileName string, startDay, endDay int) []Vote {
 	// make sure our epoch is valid
@@ -79,8 +80,13 @@ func loadVotesCSV(fileName string, startDay, endDay int) []Vote {
 			log.Fatalf("Vote is not complete: %+v\n", rec)
 		}
 
+		id := rec[IMPORT_ID]
+		if !strings.HasPrefix(rec[IMPORT_ID], "R_") {
+			log.Fatalf("Response ID is not valid: %+v\n", rec)
+		}
+
 		//append rec to votes
-		votes = append(votes, Vote{Raw: rec, Timestamp: timestamp, ONID: ONID})
+		votes = append(votes, Vote{Raw: rec, Timestamp: timestamp, ONID: ONID, ID: id})
 	}
 
 	return votes
