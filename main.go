@@ -37,8 +37,17 @@ var validVotersUndefined []string
 var alreadyVotedPrevious []string
 
 func main() {
-	var startDay int = 0      // what day are we starting on to process votes
-	var endDay int = startDay // what day are we ending on to process votes
+	var startDay int64 = 0      // what day are we starting on to process votes
+	var endDay int64 = startDay // what day are we ending on to process votes
+
+	if len(os.Args) == 2 {
+		day, err := strconv.ParseInt(os.Args[1], 10, 64)
+		if err != nil {
+			log.Fatal("Couldn't parse argument")
+		}
+		startDay = day
+		endDay = day
+	}
 
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
 
