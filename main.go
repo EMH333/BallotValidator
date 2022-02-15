@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -29,7 +33,6 @@ var validVotersUndergrad []string
 var validVotersUndefined []string
 
 var alreadyVotedPrevious []string
-var alreadyVotedToday []string
 
 func main() {
 	var startDay int = 0      // what day are we starting on to process votes
@@ -54,8 +57,7 @@ func main() {
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
-	alreadyVotedPrevious = loadAlreadyVoted("TODO: folder", startDay)
-	alreadyVotedToday = make([]string, 0, 100)
+	alreadyVotedPrevious = loadAlreadyVoted("alreadyVoted", int64(startDay))
 
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
 
@@ -72,6 +74,15 @@ func main() {
 	storeVotes(validPostOne, "1-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeVotes(invalidPostOne, "1-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeSummary(oneSummary, "1-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+
+	// step two: valid voter
+	log.Println()
+	log.Println("Step 2: Dedupe")
+	validPostTwo, invalidPostTwo, alreadyVotedToday, twoSummary := stepTwo(validPostOne, &alreadyVotedPrevious)
+	storeVotes(validPostTwo, "2-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	storeVotes(invalidPostTwo, "2-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	storeSummary(twoSummary, "2-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+	storeAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 
 }
 
@@ -112,8 +123,47 @@ func loadValidVoters(fileName string, indicator string) []string {
 	return voters
 }
 
-func loadAlreadyVoted(folderName string, upToDay int) []string {
-	return []string{"TODO"}
+func loadAlreadyVoted(folderName string, upToDay int64) []string {
+	var alreadyVoted []string
+
+	var folder = "data/" + folderName + "/"
+
+	_, err := os.Stat(folder)
+	if os.IsNotExist(err) {
+		log.Fatal("alreadyVoted doesn't exist within data")
+	}
+
+	files, err := ioutil.ReadDir(folder)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fileDay, err := strconv.ParseInt(strings.Split(file.Name(), "-")[1], 10, 64) //expecting alreadyVoted-<day>-<endDay>.csv
+		if err != nil {
+			log.Fatalln("Already voted file name formated incorrectly", err)
+		}
+
+		//
+		if fileDay >= upToDay {
+			continue
+		}
+
+		file, err := os.Open(folder + file.Name())
+		if err != nil {
+			log.Fatalln("Error opening already voted file", err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			alreadyVoted = append(alreadyVoted, scanner.Text())
+		}
+	}
+
+	alreadyVoted = removeDuplicateStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)
+
+	return alreadyVoted
 }
 
 func storeVotes(votes []Vote, filename string) {
@@ -148,4 +198,17 @@ func storeSummary(summary Summary, filename string) {
 	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
 	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
 	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
+}
+
+func storeAlreadyVoted(alreadyVoted []string, filename string) {
+	f, err := os.Create("output/" + filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// remember to close the file
+	defer f.Close()
+
+	for _, record := range alreadyVoted {
+		f.WriteString(record + "\n")
+	}
 }
