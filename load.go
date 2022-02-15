@@ -13,7 +13,7 @@ var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2022-Feb-14 00:00:01")
 
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
-const IMPORT_ONID = 75
+const IMPORT_ONID = 74
 const IMPORT_COMPLETE = 6
 
 func loadVotesCSV(fileName string, startDay, endDay int) []Vote {
@@ -68,6 +68,10 @@ func loadVotesCSV(fileName string, startDay, endDay int) []Vote {
 		//sanity check to make sure the ONID looks like an email
 		if !strings.Contains(ONID, "@oregonstate.edu") {
 			log.Fatalf("ONID is not an email address: %s\n", ONID)
+		}
+
+		if strings.Contains(strings.Split(ONID, "@")[0], ".") {
+			log.Fatalf("ONID should not contain a dot: %s\n", ONID)
 		}
 
 		//make sure it is a complete row
