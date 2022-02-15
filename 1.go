@@ -2,7 +2,7 @@ package main
 
 import "log"
 
-func stepOne(votes []Vote, validVotersGraduate, validVotersUndergraduate []string) ([]Vote, []Vote, Summary) {
+func stepOne(votes []Vote, validVotersGraduate, validVotersUndergraduate *[]string) ([]Vote, []Vote, Summary) {
 	var initialSize int = len(votes)
 
 	var validVotes []Vote

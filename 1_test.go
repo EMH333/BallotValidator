@@ -17,7 +17,7 @@ func TestStepOne(t *testing.T) {
 		{[]string{"012", "123", "456"}, time.Now(), "012"},
 	}
 
-	valid, invalid, _ := stepOne(votes, validVotersGraduate, validVotersUndergraduate)
+	valid, invalid, _ := stepOne(votes, &validVotersGraduate, &validVotersUndergraduate)
 
 	if len(valid)+len(invalid) != len(votes) {
 		t.Error("Total vote counts don't match")

@@ -47,7 +47,7 @@ func main() {
 
 	// step one: valid voter
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := stepOne(votes, validVotersGraduate, validVotersUndergrad)
+	validPostOne, invalidPostOne, oneSummary := stepOne(votes, &validVotersGraduate, &validVotersUndergrad)
 	storeVotes(validPostOne, "TODO: filename")
 	storeVotes(invalidPostOne, "TODO: filename")
 	storeSummary(oneSummary, "TODO: filename")
