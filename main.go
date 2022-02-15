@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -36,6 +37,11 @@ func main() {
 
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
 
+	_, err := os.Stat("output")
+	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
+		log.Fatal("Could not create output directory")
+	}
+
 	// Load the valid voters
 	log.Println("Loading valid voters...")
 	validVotersGraduate = loadValidVoters("data/validVoters.csv", "G")
@@ -63,9 +69,9 @@ func main() {
 	log.Println()
 	log.Println("Step 1: Valid voter")
 	validPostOne, invalidPostOne, oneSummary := stepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
-	storeVotes(validPostOne, "TODO: filename")
-	storeVotes(invalidPostOne, "TODO: filename")
-	storeSummary(oneSummary, "TODO: filename")
+	storeVotes(validPostOne, "1-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	storeVotes(invalidPostOne, "1-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	storeSummary(oneSummary, "1-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
 
 }
 
@@ -112,10 +118,34 @@ func loadAlreadyVoted(folderName string, upToDay int) []string {
 
 func storeVotes(votes []Vote, filename string) {
 	//store the vote.raw in csv format under filename
-	//TODO
+	f, err := os.Create("output/" + filename)
+	if err != nil {
+		log.Fatalln("failed to open file", err)
+	}
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	defer w.Flush()
+
+	for _, record := range votes {
+		if err := w.Write(record.Raw); err != nil {
+			log.Fatalln("error writing record to file", err)
+		}
+	}
+
+	w.Flush() // make sure we flush before closing file
 }
 
 func storeSummary(summary Summary, filename string) {
-	//store the summary
-	//TODO
+	f, err := os.Create("output/" + filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// remember to close the file
+	defer f.Close()
+
+	f.WriteString("Step 1: Valid voter\n")
+	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
+	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
+	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
 }
