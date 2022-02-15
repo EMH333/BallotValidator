@@ -31,8 +31,8 @@ var alreadyVotedPrevious []string
 var alreadyVotedToday []string
 
 func main() {
-	var startDay int // what day are we starting on to process votes
-	var endDay int   // what day are we ending on to process votes
+	var startDay int = 0      // what day are we starting on to process votes
+	var endDay int = startDay // what day are we ending on to process votes
 
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
 
@@ -42,16 +42,25 @@ func main() {
 	validVotersUndergrad = loadValidVoters("data/validVoters.csv", "UG")
 	validVotersUndefined = loadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
 
+	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
+	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
+	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
+
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
 	alreadyVotedPrevious = loadAlreadyVoted("TODO: folder", startDay)
 	alreadyVotedToday = make([]string, 0, 100)
 
+	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
+
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := loadVotesCSV("TODO: filename")
+	votes := loadVotesCSV("data/ballots/(0)14-Feb-complete.csv", startDay, endDay) //TODO allow for flexibility in the filename via command line args
+
+	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	// step one: valid voter
+	log.Println()
 	log.Println("Step 1: Valid voter")
 	validPostOne, invalidPostOne, oneSummary := stepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
 	storeVotes(validPostOne, "TODO: filename")

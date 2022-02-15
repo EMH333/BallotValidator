@@ -21,10 +21,11 @@ func stepOne(votes []Vote, validVotersGraduate, validVotersUndergraduate, validV
 	}
 
 	if len(validVotes)+len(invalidVotes) != initialSize {
-		log.Println("Step 1: Invalid votes:", len(invalidVotes))
-		log.Println("Step 2: Valid votes:", len(validVotes))
 		log.Fatal("Step 1 vote counts don't match")
 	}
+
+	log.Println("Step 1: Invalid votes:", len(invalidVotes))
+	log.Println("Step 1: Valid votes:", len(validVotes))
 
 	return validVotes, invalidVotes, Summary{len(validVotes) + len(invalidVotes), len(validVotes), len(invalidVotes)}
 }
