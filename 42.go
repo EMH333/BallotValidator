@@ -55,10 +55,10 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 	}
 
 	//speaker of the house
-	speakerResults := runIRV(votes, []string{"A", "B", "C", "D", "E", "F"}, TALLY_SPEAKER_OPTIONS_NUMBER, TALLY_SPEAKER_OPTIONS_START)
+	speakerResults := runIRV(votes, []string{"Abril Uribe", "Jordan Porter", "Madelyn Neuschwander", "Jared Pratt", "Rooney Ferguson", "Jarrett Alto"}, TALLY_SPEAKER_OPTIONS_NUMBER, TALLY_SPEAKER_OPTIONS_START)
 
 	//presidental ticket
-	presidentResults := runIRV(votes, []string{"A", "B", "C"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := runIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President", "Matteo Paola for President & Sierra Young for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
 	//SFC chair
 	sfcChairResults := runIRV(votes, []string{"Joe Page"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)

@@ -138,7 +138,7 @@ func main() {
 	postFour, winners, fourSummary := stepFour(validPostThree, seed, numToPick)
 	storeVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
 	storeSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
-	storeAlreadyVoted(winners, "winners-"+dayToDayFormat+".csv")
+	storeAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
 	log.Println("Step 4: Valid votes:", threeSummary.valid)
 	log.Println("Step 4: Selected winners:", len(winners))
 
