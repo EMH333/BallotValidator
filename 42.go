@@ -52,14 +52,14 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 		log.Fatal("Could not create output directory", outputDirname)
 	}
 
-	//write to ballot file
-	f, err := os.Create(outputDirname + "/ballot.csv")
+	//write to ballot measure file
+	f, err := os.Create(outputDirname + "/ballot-measure.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	f.WriteString(fmt.Sprint("Ballot Yes,", ballotYes, "\n"))
-	f.WriteString(fmt.Sprint("Ballot No,", ballotNo, "\n"))
+	f.WriteString(fmt.Sprint("Ballot Measure Yes,", ballotYes, "\n"))
+	f.WriteString(fmt.Sprint("Ballot Measure No,", ballotNo, "\n"))
 	f.Sync()
 	f.Close()
 
