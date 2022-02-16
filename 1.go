@@ -24,5 +24,9 @@ func stepOne(votes []Vote, validVotersGraduate, validVotersUndergraduate, validV
 		log.Fatal("Step 1 vote counts don't match")
 	}
 
-	return validVotes, invalidVotes, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes)}
+	return validVotes, invalidVotes, Summary{
+		stepInfo:  "Step 1: Valid voter",
+		processed: len(validVotes) + len(invalidVotes),
+		valid:     len(validVotes),
+		invalid:   len(invalidVotes)}
 }

@@ -46,5 +46,10 @@ func stepThree(votes []Vote, validVotersGraduate, validVotersUndergraduate *[]st
 		log.Fatal("Step 3 vote count doesn't match")
 	}
 
-	return validVotes, invalidVotes, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes), log: logMessages}
+	return validVotes, invalidVotes, Summary{
+		stepInfo:  "Step 3: Grad/undergrad",
+		processed: len(validVotes) + len(invalidVotes),
+		valid:     len(validVotes),
+		invalid:   len(invalidVotes),
+		log:       logMessages}
 }

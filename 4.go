@@ -27,5 +27,10 @@ func stepFour(votes []Vote, seed string, numberToPick int) ([]Vote, []string, Su
 		}
 	}
 
-	return votes, winners, Summary{processed: initialSize, valid: initialSize, invalid: 0, log: logMessages}
+	return votes, winners, Summary{
+		stepInfo:  "Step 4: Incentives",
+		processed: initialSize,
+		valid:     initialSize,
+		invalid:   0,
+		log:       logMessages}
 }

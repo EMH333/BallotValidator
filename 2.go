@@ -26,5 +26,10 @@ func stepTwo(votes []Vote, alreadyVoted *[]string) ([]Vote, []Vote, []string, Su
 		log.Fatal("Step 2 vote counts don't match")
 	}
 
-	return validVotes, invalidVotes, votedToday, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes), log: logMessages}
+	return validVotes, invalidVotes, votedToday, Summary{
+		stepInfo:  "Step 2: Dedupe",
+		processed: len(validVotes) + len(invalidVotes),
+		valid:     len(validVotes),
+		invalid:   len(invalidVotes),
+		log:       logMessages}
 }

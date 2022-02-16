@@ -28,6 +28,7 @@ type Summary struct {
 	valid     int
 	invalid   int
 	log       []string
+	stepInfo  string
 }
 
 var validVotersGraduate []string
@@ -248,7 +249,7 @@ func storeSummary(summary Summary, filename string) {
 	// remember to close the file
 	defer f.Close()
 
-	f.WriteString("Step 1: Valid voter\n")
+	f.WriteString(summary.stepInfo + "\n")
 	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
 	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
 	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
