@@ -141,6 +141,9 @@ func main() {
 	storeAlreadyVoted(winners, "winners-"+dayToDayFormat+".csv")
 	log.Println("Step 4: Valid votes:", threeSummary.valid)
 	log.Println("Step 4: Selected winners:", len(winners))
+
+	//experimental
+	stepFourtyTwo(postFour, "TODO")
 }
 
 const VALID_STATUS = 4
