@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -28,14 +29,16 @@ func runIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 	ballots, createMessages := createIRVBallots(&votes, includedCandidates, numCandidates, offset)
 
 	logMessages = append(logMessages, createMessages...)
+	logMessages = append(logMessages, fmt.Sprint("Number of ballots: ", len(ballots)))
 
 	var roundNumber int = 1
 	//now run the IRV
 	for {
 		logMessages = append(logMessages, "Round "+strconv.Itoa(roundNumber))
-		logMessages = append(logMessages, "----------------------------------------------------")
 		//count up the votes for each candidate
-		candidateVotes := countIRVVotes(&ballots)
+		candidateVotes, ballotsCountedThisRound := countIRVVotes(&ballots)
+		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound))
+		logMessages = append(logMessages, "----------------------------------------------------")
 		winner := ""
 		for candidate, votes := range candidateVotes {
 			logMessages = append(logMessages, candidate+" has "+strconv.Itoa(votes)+" votes")
@@ -76,8 +79,9 @@ func runIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 	return logMessages
 }
 
-func countIRVVotes(ballots *[]IRVBallot) map[string]int {
+func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
 	candidateVotes := make(map[string]int)
+	ballotsCountedThisRound := 0
 	for _, ballot := range *ballots {
 		//remove any empty strings from each ballot
 		for {
@@ -91,9 +95,10 @@ func countIRVVotes(ballots *[]IRVBallot) map[string]int {
 		// if valid ballot, count the vote
 		if len(ballot.Choices) > 0 {
 			candidateVotes[ballot.Choices[0]]++
+			ballotsCountedThisRound++
 		}
 	}
-	return candidateVotes
+	return candidateVotes, ballotsCountedThisRound
 }
 
 func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
@@ -112,11 +117,13 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 				//if rank doesn't parse, then they left it blank
 				rank, err := strconv.ParseInt(vote.Raw[i], 10, 64)
 				if err != nil {
+					//logMessages = append(logMessages, "Invalid rank from "+vote.Raw[i]+" for "+vote.ID)
 					continue
 				}
 
 				//check to make sure we aren't overriding a value
 				if ballot.Choices[rank-1] != "" {
+					logMessages = append(logMessages, "Error: "+vote.ID+" tried to override "+ballot.Choices[rank-1]+" with "+includedCandidates[i-offset])
 					validBallot = false
 					break
 				}
@@ -129,14 +136,16 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 		rank, err := strconv.ParseInt(vote.Raw[offset+numCandidates], 10, 64)
 		//if rank doesn't parse, then they left it blank
 		if err != nil {
-			continue
+			//logMessages = append(logMessages, "Invalid rank from "+vote.Raw[offset+numCandidates]+" for "+vote.ID)
+		} else {
+			//check to make sure we aren't overriding a value
+			if ballot.Choices[rank-1] != "" {
+				logMessages = append(logMessages, "Error: "+vote.ID+" tried to override "+ballot.Choices[rank-1]+" with "+vote.Raw[offset+numCandidates+1])
+				validBallot = false
+			}
+			writeInName := cleanVote(vote.Raw[offset+numCandidates+1])
+			ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 		}
-		//check to make sure we aren't overriding a value
-		if ballot.Choices[rank-1] != "" {
-			validBallot = false
-		}
-		writeInName := cleanVote(vote.Raw[offset+numCandidates+1])
-		ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 
 		if validBallot {
 			ballots = append(ballots, ballot)
