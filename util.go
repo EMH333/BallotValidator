@@ -24,22 +24,17 @@ func removeDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func cleanWriteInVotes(votes []string) []string {
-	var cleanVotes []string
-	for _, v := range votes {
-		v = cleanVote(v)
-		if v != "" {
-			cleanVotes = append(cleanVotes, v)
-		}
-	}
-	return cleanVotes
-}
-
 func cleanVote(vote string) string {
 	if vote == "Write in:" || vote == "Write-in:" {
 		return ""
 	}
+
 	vote = strings.TrimSpace(vote)
 	vote = strings.ToUpper(vote)
+
+	//TODO add removal of entrys found to be invalid
+	//TODO add subsitution for valid but ill-formed entrys
+	//both should happen after the trim/upper
+
 	return vote
 }

@@ -103,19 +103,26 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 
 func countPopularityVote(vote *Vote, position *map[string]int, initialPosition int, numWriteins int) {
 	votes := strings.Split(vote.Raw[initialPosition], ",")
-	for i := 0; i < numWriteins; i++ {
-		wi := vote.Raw[initialPosition+1+i]
-		if wi != "" {
-			votes = append(votes, wi)
+	// clean up the write in entries
+	for i, vote := range votes {
+		if vote == "Write in:" || vote == "Write-in:" {
+			votes[i] = ""
 		}
 	}
 
-	cleanVotes := cleanWriteInVotes(votes)
+	for i := 0; i < numWriteins; i++ {
+		wi := vote.Raw[initialPosition+1+i]
+		if wi != "" {
+			votes = append(votes, cleanVote(wi))
+		}
+	}
 
-	cleanVotes = removeDuplicateStr(cleanVotes)
+	votes = removeDuplicateStr(votes)
 
-	for _, v := range cleanVotes {
-		(*position)[v]++
+	for _, v := range votes {
+		if v != "" {
+			(*position)[v]++
+		}
 	}
 }
 
