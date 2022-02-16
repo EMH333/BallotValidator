@@ -253,14 +253,32 @@ func storeSummary(summary Summary, filename string) {
 	// remember to close the file
 	defer f.Close()
 
-	f.WriteString(summary.stepInfo + "\n")
-	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
-	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
-	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
+	_, err = f.WriteString(summary.stepInfo + "\n")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
+	if err != nil {
+		log.Fatal(err)
+	}
 	if len(summary.log) != 0 {
-		f.WriteString("\n\nLog Messages:\n")
+		_, err = f.WriteString("\n\nLog Messages:\n")
+		if err != nil {
+			log.Fatal(err)
+		}
 		for _, message := range summary.log {
-			f.WriteString(message + "\n")
+			_, err = f.WriteString(message + "\n")
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
@@ -274,7 +292,10 @@ func storeAlreadyVoted(alreadyVoted []string, filename string) {
 	defer f.Close()
 
 	for _, record := range alreadyVoted {
-		f.WriteString(record + "\n")
+		_, err = f.WriteString(record + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

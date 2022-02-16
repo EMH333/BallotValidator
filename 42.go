@@ -74,9 +74,18 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 		log.Fatal(err)
 	}
 
-	f.WriteString(fmt.Sprint("Ballot Measure Yes,", ballotYes, "\n"))
-	f.WriteString(fmt.Sprint("Ballot Measure No,", ballotNo, "\n"))
-	f.Sync()
+	_, err = f.WriteString(fmt.Sprint("Ballot Measure Yes,", ballotYes, "\n"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString(fmt.Sprint("Ballot Measure No,", ballotNo, "\n"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = f.Sync()
+	if err != nil {
+		log.Fatal(err)
+	}
 	f.Close()
 
 	//write to senate file
@@ -132,11 +141,21 @@ func writeMultipleVoteResults(results *map[string]int, filename string) {
 		log.Fatal(err)
 	}
 
-	f.WriteString("Candidate,Votes\n")
-	for vote, count := range *results {
-		f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+	_, err = f.WriteString("Candidate,Votes\n")
+	if err != nil {
+		log.Fatal(err)
 	}
-	f.Sync()
+
+	for vote, count := range *results {
+		_, err = f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = f.Sync()
+	if err != nil {
+		log.Fatal(err)
+	}
 	f.Close()
 }
 
@@ -147,8 +166,14 @@ func writeIRVResults(results []string, filename string) {
 	}
 
 	for _, v := range results {
-		f.WriteString(v + "\n")
+		_, err = f.WriteString(v + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
-	f.Sync()
+	err = f.Sync()
+	if err != nil {
+		log.Fatal(err)
+	}
 	f.Close()
 }
