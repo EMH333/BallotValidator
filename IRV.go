@@ -13,6 +13,8 @@ The instant run-off voting functions as follows, for a single race:
 - Otherwise, we remove the canidate with the least number of votes (looping through every single entry of every single ballot) and reset to step 2
 */
 
+//TODO deal with ties better
+
 type IRVBallot struct {
 	Choices []string
 	ID      string
@@ -133,8 +135,8 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 		if ballot.Choices[rank-1] != "" {
 			validBallot = false
 		}
-		//TODO normalize write-in name
-		ballot.Choices[rank-1] = vote.Raw[offset+numCandidates+1] //set the rank choice to the candidate
+		writeInName := cleanVote(vote.Raw[offset+numCandidates+1])
+		ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 
 		if validBallot {
 			ballots = append(ballots, ballot)

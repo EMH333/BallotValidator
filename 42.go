@@ -110,14 +110,7 @@ func countPopularityVote(vote *Vote, position *map[string]int, initialPosition i
 		}
 	}
 
-	var cleanVotes []string
-	for _, v := range votes {
-		if v != "" && v != "Write-in:" {
-			v = strings.TrimSpace(v)
-			v = strings.ToUpper(v)
-			cleanVotes = append(cleanVotes, v)
-		}
-	}
+	cleanVotes := cleanWriteInVotes(votes)
 
 	cleanVotes = removeDuplicateStr(cleanVotes)
 
