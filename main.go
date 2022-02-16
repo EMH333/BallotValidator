@@ -36,6 +36,8 @@ var validVotersUndefined []string
 
 var alreadyVotedPrevious []string
 
+const numToPick int = 10 // how many winners to pick //TODO tie into command line
+
 func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes
 	var endDay int64 = startDay // what day are we ending on to process votes
@@ -68,6 +70,9 @@ func main() {
 
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
 	var dayToDayFormat = fmt.Sprint(startDay) + "-" + fmt.Sprint(endDay)
+
+	//"random" seed so winners are deterministic
+	var seed = loadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
@@ -125,6 +130,15 @@ func main() {
 	storeSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
 	log.Println("Step 3: Modified votes:", threeSummary.invalid)
 	log.Println("Step 3: Valid votes:", threeSummary.valid)
+
+	// step four: Incentives
+	log.Println()
+	log.Println("Step 4: Incentives")
+	postFour, winners, fourSummary := stepFour(validPostThree, seed, numToPick)
+	storeVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
+	storeSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
+	storeAlreadyVoted(winners, "winners-"+dayToDayFormat+".csv")
+	log.Println("Step 4: Valid votes:", threeSummary.valid)
 }
 
 const VALID_STATUS = 4
@@ -257,4 +271,24 @@ func storeAlreadyVoted(alreadyVoted []string, filename string) {
 	for _, record := range alreadyVoted {
 		f.WriteString(record + "\n")
 	}
+}
+
+func loadSeed() string {
+	//load the seed from the seed.txt file
+	f, err := os.Open("data/seed.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	scanner.Scan()
+	seed := scanner.Text()
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	if seed == "" {
+		log.Fatal("seed.txt is empty")
+	}
+	return seed
 }
