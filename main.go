@@ -140,6 +140,7 @@ func main() {
 	storeSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
 	storeAlreadyVoted(winners, "winners-"+dayToDayFormat+".csv")
 	log.Println("Step 4: Valid votes:", threeSummary.valid)
+	log.Println("Step 4: Selected winners:", len(winners))
 }
 
 const VALID_STATUS = 4

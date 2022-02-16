@@ -48,7 +48,7 @@ func stepThree(votes []Vote, validVotersGraduate, validVotersUndergraduate *[]st
 
 	return validVotes, invalidVotes, Summary{
 		stepInfo:  "Step 3: Grad/undergrad",
-		processed: len(validVotes) + len(invalidVotes),
+		processed: len(validVotes),
 		valid:     len(validVotes),
 		invalid:   len(invalidVotes),
 		log:       logMessages}
