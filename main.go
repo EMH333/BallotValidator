@@ -85,6 +85,8 @@ func main() {
 	storeVotes(validPostOne, "1-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeVotes(invalidPostOne, "1-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeSummary(oneSummary, "1-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+	log.Println("Step 1: Invalid votes:", oneSummary.invalid)
+	log.Println("Step 1: Valid votes:", oneSummary.valid)
 
 	// step two: valid voter
 	log.Println()
@@ -94,14 +96,18 @@ func main() {
 	storeVotes(invalidPostTwo, "2-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeSummary(twoSummary, "2-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
 	storeAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	log.Println("Step 2: Invalid votes:", twoSummary.invalid)
+	log.Println("Step 2: Valid votes:", twoSummary.valid)
 
 	// step three: grad/undergrad
 	log.Println()
-	log.Println("Step 2: Grad/undergrad")
+	log.Println("Step 3: Grad/undergrad")
 	validPostThree, invalidPostThree, threeSummary := stepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
 	storeVotes(validPostThree, "3-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeVotes(invalidPostThree, "3-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
 	storeSummary(threeSummary, "3-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+	log.Println("Step 3: Modified votes:", threeSummary.invalid)
+	log.Println("Step 3: Valid votes:", threeSummary.valid)
 }
 
 const VALID_STATUS = 4

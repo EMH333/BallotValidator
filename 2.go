@@ -26,8 +26,5 @@ func stepTwo(votes []Vote, alreadyVoted *[]string) ([]Vote, []Vote, []string, Su
 		log.Fatal("Step 2 vote counts don't match")
 	}
 
-	log.Println("Step 2: Invalid votes:", len(invalidVotes))
-	log.Println("Step 2: Valid votes:", len(validVotes))
-
 	return validVotes, invalidVotes, votedToday, Summary{processed: len(validVotes) + len(invalidVotes), valid: len(validVotes), invalid: len(invalidVotes), log: logMessages}
 }
