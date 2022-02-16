@@ -40,6 +40,7 @@ func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes
 	var endDay int64 = startDay // what day are we ending on to process votes
 
+	// in the form of `program <day>`
 	if len(os.Args) == 2 {
 		day, err := strconv.ParseInt(os.Args[1], 10, 64)
 		if err != nil {
@@ -49,7 +50,24 @@ func main() {
 		endDay = day
 	}
 
+	// in the form of `program <start_day> <end_day>`
+	if len(os.Args) == 3 {
+		day1, err := strconv.ParseInt(os.Args[1], 10, 64)
+		if err != nil {
+			log.Fatal("Couldn't parse argument 1")
+		}
+
+		day2, err := strconv.ParseInt(os.Args[2], 10, 64)
+		if err != nil {
+			log.Fatal("Couldn't parse argument 2")
+		}
+
+		startDay = day1
+		endDay = day2
+	}
+
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
+	var dayToDayFormat = fmt.Sprint(startDay) + "-" + fmt.Sprint(endDay)
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
@@ -74,17 +92,16 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := loadVotesCSV("data/ballots/(0)14-Feb-complete.csv", startDay, endDay) //TODO allow for flexibility in the filename via command line args
-
+	votes := loadVotesCSV("data/ballots/0-Feb-14-complete.csv", startDay, endDay) //TODO allow for flexibility in the filename via command line args
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
 	validPostOne, invalidPostOne, oneSummary := stepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
-	storeVotes(validPostOne, "1-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeVotes(invalidPostOne, "1-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeSummary(oneSummary, "1-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+	storeVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
+	storeVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
+	storeSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
 	log.Println("Step 1: Invalid votes:", oneSummary.invalid)
 	log.Println("Step 1: Valid votes:", oneSummary.valid)
 
@@ -92,10 +109,10 @@ func main() {
 	log.Println()
 	log.Println("Step 2: Dedupe")
 	validPostTwo, invalidPostTwo, alreadyVotedToday, twoSummary := stepTwo(validPostOne, &alreadyVotedPrevious)
-	storeVotes(validPostTwo, "2-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeVotes(invalidPostTwo, "2-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeSummary(twoSummary, "2-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
-	storeAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
+	storeVotes(validPostTwo, "2-valid-"+dayToDayFormat+".csv")
+	storeVotes(invalidPostTwo, "2-invalid-"+dayToDayFormat+".csv")
+	storeSummary(twoSummary, "2-summary-"+dayToDayFormat+".txt")
+	storeAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+dayToDayFormat+".csv")
 	log.Println("Step 2: Invalid votes:", twoSummary.invalid)
 	log.Println("Step 2: Valid votes:", twoSummary.valid)
 
@@ -103,9 +120,9 @@ func main() {
 	log.Println()
 	log.Println("Step 3: Grad/undergrad")
 	validPostThree, invalidPostThree, threeSummary := stepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
-	storeVotes(validPostThree, "3-valid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeVotes(invalidPostThree, "3-invalid-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".csv")
-	storeSummary(threeSummary, "3-summary-"+fmt.Sprint(startDay)+"-"+fmt.Sprint(endDay)+".txt")
+	storeVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
+	storeVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
+	storeSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
 	log.Println("Step 3: Modified votes:", threeSummary.invalid)
 	log.Println("Step 3: Valid votes:", threeSummary.valid)
 }
@@ -115,15 +132,14 @@ const VALID_ONID_EMAIL = 2
 
 func loadValidVoters(fileName string, indicator string) []string {
 	var voters []string
-	//return []string{"TODO"}
-	//load csv file
+
+	//open csv file
 	f, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
 
-	// read csv values using csv.Reader
 	//with modifications to handle the specifics of the valid votes list
 	csvReader := csv.NewReader(f)
 	csvReader.Comma = '\t'
@@ -168,7 +184,7 @@ func loadAlreadyVoted(folderName string, upToDay int64) []string {
 			log.Fatalln("Already voted file name formated incorrectly", err)
 		}
 
-		//
+		// ignore files that are past today since they won't yield helpful results
 		if fileDay >= upToDay {
 			continue
 		}
@@ -222,9 +238,11 @@ func storeSummary(summary Summary, filename string) {
 	f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
 	f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
 	f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
-	f.WriteString("\n\nLog Messages:\n")
-	for _, message := range summary.log {
-		f.WriteString(message + "\n")
+	if len(summary.log) != 0 {
+		f.WriteString("\n\nLog Messages:\n")
+		for _, message := range summary.log {
+			f.WriteString(message + "\n")
+		}
 	}
 }
 
