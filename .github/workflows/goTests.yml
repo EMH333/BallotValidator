@@ -35,3 +35,10 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: latest
+        # Optional: show only new issues if it's a pull request. The default value is `false`.
+        only-new-issues: true
