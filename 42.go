@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -17,7 +18,7 @@ const TALLY_GRADREPS_OPTIONS = TALLY_UNDERGRADREPS_OPTIONS + TALLY_UNDERGRADREPS
 const TALLY_GRADREPS_WRITEINS = 5
 
 // designed to do all the counting and output a nice little summary
-func stepFourtyTwo(votes []Vote, outputFilename string) {
+func stepFourtyTwo(votes []Vote, outputDirname string) {
 	var ballotYes int = 0
 	var ballotNo int = 0
 
@@ -46,27 +47,73 @@ func stepFourtyTwo(votes []Vote, outputFilename string) {
 		countPopularityVote(&vote, &gradReps, TALLY_GRADREPS_OPTIONS, TALLY_GRADREPS_WRITEINS)
 	}
 
-	log.Println("Ballot Yes:", ballotYes)
-	log.Println("Ballot No:", ballotNo)
-	log.Println("Senate Votes:")
+	_, err := os.Stat(outputDirname)
+	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
+		log.Fatal("Could not create output directory", outputDirname)
+	}
+
+	//write to ballot file
+	f, err := os.Create(outputDirname + "/ballot.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f.WriteString(fmt.Sprint("Ballot Yes,", ballotYes, "\n"))
+	f.WriteString(fmt.Sprint("Ballot No,", ballotNo, "\n"))
+	f.Sync()
+	f.Close()
+
+	//write to senate file
+	f, err = os.Create(outputDirname + "/senate.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f.WriteString("Candidate,Votes\n")
 	for vote, count := range senate {
-		log.Println("\"" + vote + "\"" + "," + fmt.Sprint(count))
+		f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+	}
+	f.Sync()
+	f.Close()
+
+	//write to SFC At-large file
+	f, err = os.Create(outputDirname + "/sfc-at-large.csv")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	log.Println("SFC At-Large Votes:")
+	f.WriteString("Candidate,Votes\n")
 	for vote, count := range sfcAtLarge {
-		log.Println("\"" + vote + "\"" + "," + fmt.Sprint(count))
+		f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+	}
+	f.Sync()
+	f.Close()
+
+	//write to Undergrad Reps file
+	f, err = os.Create(outputDirname + "/undergrad-reps.csv")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	log.Println("Undergrad Reps Votes:")
+	f.WriteString("Candidate,Votes\n")
 	for vote, count := range undergradReps {
-		log.Println("\"" + vote + "\"" + "," + fmt.Sprint(count))
+		f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+	}
+	f.Sync()
+	f.Close()
+
+	//write to Grad Reps file
+	f, err = os.Create(outputDirname + "/grad-reps.csv")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	log.Println("Grad Reps Votes:")
+	f.WriteString("Candidate,Votes\n")
 	for vote, count := range gradReps {
-		log.Println("\"" + vote + "\"" + "," + fmt.Sprint(count))
+		f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
 	}
+	f.Sync()
+	f.Close()
 }
 
 func countPopularityVote(vote *Vote, position *map[string]int, initialPosition int, numWriteins int) {

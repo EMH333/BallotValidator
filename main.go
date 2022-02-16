@@ -143,7 +143,7 @@ func main() {
 	log.Println("Step 4: Selected winners:", len(winners))
 
 	//experimental
-	stepFourtyTwo(postFour, "TODO")
+	stepFourtyTwo(postFour, "output/results")
 }
 
 const VALID_STATUS = 4
