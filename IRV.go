@@ -29,7 +29,7 @@ func runIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 	ballots, createMessages := createIRVBallots(&votes, includedCandidates, numCandidates, offset)
 
 	logMessages = append(logMessages, createMessages...)
-	logMessages = append(logMessages, fmt.Sprint("Number of ballots: ", len(ballots)))
+	logMessages = append(logMessages, fmt.Sprint("Number of ballots: ", len(ballots)), "")
 
 	var roundNumber int = 1
 	//now run the IRV
@@ -62,7 +62,7 @@ func runIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 				lowestVotes = votes
 			}
 		}
-		logMessages = append(logMessages, "Removing "+lowestCandidate+" from the election")
+		logMessages = append(logMessages, "", "Removing "+lowestCandidate+" with "+fmt.Sprint(lowestVotes)+" from the election")
 		//remove the candidate from all ballots
 		for i := range ballots {
 			for j := range ballots[i].Choices {
