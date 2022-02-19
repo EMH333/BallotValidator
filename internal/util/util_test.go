@@ -42,3 +42,22 @@ func TestRemoveDuplicateStr(t *testing.T) {
 		}
 	}
 }
+
+func TestCleanVote(t *testing.T) {
+	var testCases = []struct {
+		vote   string
+		expect string
+	}{
+		{"a", "A"},
+		{"a ", "A"},
+		{" A", "A"},
+		{"Write in:", ""},
+		{"Write-in:", ""},
+	}
+
+	for _, testCase := range testCases {
+		if CleanVote(testCase.vote) != testCase.expect {
+			t.Errorf("Expected %v to be %v", testCase.vote, testCase.expect)
+		}
+	}
+}
