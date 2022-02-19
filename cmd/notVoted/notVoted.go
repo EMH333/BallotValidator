@@ -68,5 +68,5 @@ func main() {
 	sort.Strings(onidEmails)
 
 	//write the emails to a file
-	util.StoreAlreadyVoted(onidEmails, "yetToVote.csv")
+	util.StoreAlreadyVoted(onidEmails, "haveNotVoted.csv")
 }
