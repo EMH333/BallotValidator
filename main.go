@@ -42,19 +42,21 @@ const numToPick int = 10 // how many winners to pick //TODO tie into command lin
 func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes
 	var endDay int64 = startDay // what day are we ending on to process votes
+	var dataFile string = "ballotData.csv"
 
-	// in the form of `program <day>`
-	if len(os.Args) == 2 {
+	// in the form of `program <day> <file_to_process>`
+	if len(os.Args) == 3 {
 		day, err := strconv.ParseInt(os.Args[1], 10, 64)
 		if err != nil {
 			log.Fatal("Couldn't parse argument")
 		}
 		startDay = day
 		endDay = day
+		dataFile = os.Args[2]
 	}
 
-	// in the form of `program <start_day> <end_day>`
-	if len(os.Args) == 3 {
+	// in the form of `program <start_day> <end_day> <file_to_process>`
+	if len(os.Args) == 4 {
 		day1, err := strconv.ParseInt(os.Args[1], 10, 64)
 		if err != nil {
 			log.Fatal("Couldn't parse argument 1")
@@ -67,6 +69,7 @@ func main() {
 
 		startDay = day1
 		endDay = day2
+		dataFile = os.Args[3]
 	}
 
 	log.Printf("Selected start day: %d, Selected end day: %d\n", startDay, endDay)
@@ -98,7 +101,7 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := loadVotesCSV("data/ballots/0-Feb-14-complete.csv", startDay, endDay) //TODO allow for flexibility in the filename via command line args
+	votes := loadVotesCSV("data/ballots/"+dataFile, startDay, endDay)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	// step one: valid voter
