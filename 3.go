@@ -19,6 +19,8 @@ func stepThree(votes []Vote, validVotersGraduate, validVotersUndergraduate *[]st
 	var invalidVotes []Vote
 
 	for _, v := range votes {
+		beginningColumns := len(v.Raw)
+
 		if contains(validVotersGraduate, v.ONID) && v.Raw[THREE_CHOICE] != "Graduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
@@ -35,6 +37,13 @@ func stepThree(votes []Vote, validVotersGraduate, validVotersUndergraduate *[]st
 			v.Raw = append(start, make([]string, THREE_END-THREE_START)...)
 			v.Raw = append(v.Raw, end...)
 			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
+		}
+
+		endColumns := len(v.Raw)
+
+		//make sure the modifications didn't change # of columns which would screw up data
+		if beginningColumns != endColumns {
+			log.Println("Error: columns changed size during step 3")
 		}
 
 		//add to valid votes regardless (corrections have been made above if needed)
