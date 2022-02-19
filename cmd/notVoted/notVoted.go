@@ -23,6 +23,11 @@ func main() {
 		log.Fatal("Need to specify a file to process")
 	}
 
+	_, err := os.Stat("output")
+	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
+		log.Fatal("Could not create output directory")
+	}
+
 	// Load the valid voters
 	log.Println("Loading valid voters...")
 	validVotersGraduate := util.LoadValidVoters("data/validVoters.csv", "G")
