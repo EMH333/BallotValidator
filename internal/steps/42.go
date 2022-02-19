@@ -1,10 +1,12 @@
-package main
+package steps
 
 import (
 	"fmt"
 	"log"
 	"os"
 	"strings"
+
+	"ethohampton.com/BallotCleaner/internal/util"
 )
 
 const TALLY_MEASURE = 17
@@ -25,7 +27,7 @@ const TALLY_SFCCHAIR_OPTIONS_START = TALLY_PRES_OPTIONS_START + TALLY_PRES_OPTIO
 const TALLY_SFCCHAIR_OPTIONS_NUMBER = 1
 
 // designed to do all the counting and output a nice little summary
-func stepFourtyTwo(votes []Vote, outputDirname string) {
+func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	var ballotYes int = 0
 	var ballotNo int = 0
 
@@ -55,13 +57,13 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 	}
 
 	//speaker of the house
-	speakerResults := runIRV(votes, []string{"Abril Uribe", "Jordan Porter", "Madelyn Neuschwander", "Jared Pratt", "Rooney Ferguson", "Jarrett Alto"}, TALLY_SPEAKER_OPTIONS_NUMBER, TALLY_SPEAKER_OPTIONS_START)
+	speakerResults := util.RunIRV(votes, []string{"Abril Uribe", "Jordan Porter", "Madelyn Neuschwander", "Jared Pratt", "Rooney Ferguson", "Jarrett Alto"}, TALLY_SPEAKER_OPTIONS_NUMBER, TALLY_SPEAKER_OPTIONS_START)
 
 	//presidental ticket
-	presidentResults := runIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President", "Matteo Paola for President & Sierra Young for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President", "Matteo Paola for President & Sierra Young for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
 	//SFC chair
-	sfcChairResults := runIRV(votes, []string{"Joe Page"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
+	sfcChairResults := util.RunIRV(votes, []string{"Joe Page"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
@@ -110,7 +112,7 @@ func stepFourtyTwo(votes []Vote, outputDirname string) {
 	writeIRVResults(sfcChairResults, outputDirname+"/sfc-chair.txt")
 }
 
-func countPopularityVote(vote *Vote, position *map[string]int, initialPosition int, numWriteins int) {
+func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosition int, numWriteins int) {
 	votes := strings.Split(vote.Raw[initialPosition], ",")
 	// clean up the write in entries
 	for i, vote := range votes {
@@ -122,11 +124,11 @@ func countPopularityVote(vote *Vote, position *map[string]int, initialPosition i
 	for i := 0; i < numWriteins; i++ {
 		wi := vote.Raw[initialPosition+1+i]
 		if wi != "" {
-			votes = append(votes, cleanVote(wi))
+			votes = append(votes, util.CleanVote(wi))
 		}
 	}
 
-	votes = removeDuplicateStr(votes)
+	votes = util.RemoveDuplicateStr(votes)
 
 	for _, v := range votes {
 		if v != "" {

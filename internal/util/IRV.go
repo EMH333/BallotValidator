@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ type IRVBallot struct {
 	ID      string
 }
 
-func runIRV(votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
+func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
 	var majority int = (len(votes) / 2) + 1
 	var logMessages []string
 
@@ -143,7 +143,7 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 				logMessages = append(logMessages, "Error: "+vote.ID+" tried to override "+ballot.Choices[rank-1]+" with "+vote.Raw[offset+numCandidates+1])
 				validBallot = false
 			}
-			writeInName := cleanVote(vote.Raw[offset+numCandidates+1])
+			writeInName := CleanVote(vote.Raw[offset+numCandidates+1])
 			ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 		}
 

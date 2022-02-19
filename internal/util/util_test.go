@@ -1,4 +1,4 @@
-package main
+package util
 
 import "testing"
 
@@ -14,7 +14,7 @@ func TestContains(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		if contains(&testCase.slice, testCase.value) != testCase.expect {
+		if Contains(&testCase.slice, testCase.value) != testCase.expect {
 			t.Errorf("Expected %v to be %v", testCase.slice, testCase.expect)
 		}
 	}

@@ -1,9 +1,9 @@
-package main
+package util
 
 import "strings"
 
 // does the array contain the value?
-func contains(s *[]string, e string) bool {
+func Contains(s *[]string, e string) bool {
 	for _, a := range *s {
 		if a == e {
 			return true
@@ -12,7 +12,7 @@ func contains(s *[]string, e string) bool {
 	return false
 }
 
-func removeDuplicateStr(strSlice []string) []string {
+func RemoveDuplicateStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
 	list := []string{}
 	for _, item := range strSlice {
@@ -24,7 +24,7 @@ func removeDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func cleanVote(vote string) string {
+func CleanVote(vote string) string {
 	if vote == "Write in:" || vote == "Write-in:" {
 		return ""
 	}

@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"encoding/csv"
@@ -17,7 +17,7 @@ const IMPORT_ONID = 74
 const IMPORT_COMPLETE = 6
 const IMPORT_ID = 8
 
-func loadVotesCSV(fileName string, startDay, endDay int64) []Vote {
+func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	// make sure our epoch is valid
 	if epochErr != nil {
 		log.Fatal(epochErr)

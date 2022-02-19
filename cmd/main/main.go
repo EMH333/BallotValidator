@@ -10,26 +10,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
+
+	"ethohampton.com/BallotCleaner/internal/steps"
+	"ethohampton.com/BallotCleaner/internal/util"
 )
-
-// Raw is the raw row
-// Timestamp is the timestamp of the row (parsed)
-// ONID is the ONID of the row (taken from the raw)
-type Vote struct {
-	Raw       []string
-	Timestamp time.Time
-	ONID      string
-	ID        string
-}
-
-type Summary struct {
-	processed int
-	valid     int
-	invalid   int
-	log       []string
-	stepInfo  string
-}
 
 var validVotersGraduate []string
 var validVotersUndergrad []string
@@ -101,52 +85,52 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := loadVotesCSV("data/ballots/"+dataFile, startDay, endDay)
+	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := stepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
+	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
 	storeVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
 	storeVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
 	storeSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
-	log.Println("Step 1: Invalid votes:", oneSummary.invalid)
-	log.Println("Step 1: Valid votes:", oneSummary.valid)
+	log.Println("Step 1: Invalid votes:", oneSummary.Invalid)
+	log.Println("Step 1: Valid votes:", oneSummary.Valid)
 
 	// step two: valid voter
 	log.Println()
 	log.Println("Step 2: Dedupe")
-	validPostTwo, invalidPostTwo, alreadyVotedToday, twoSummary := stepTwo(validPostOne, &alreadyVotedPrevious)
+	validPostTwo, invalidPostTwo, alreadyVotedToday, twoSummary := steps.StepTwo(validPostOne, &alreadyVotedPrevious)
 	storeVotes(validPostTwo, "2-valid-"+dayToDayFormat+".csv")
 	storeVotes(invalidPostTwo, "2-invalid-"+dayToDayFormat+".csv")
 	storeSummary(twoSummary, "2-summary-"+dayToDayFormat+".txt")
 	storeAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+dayToDayFormat+".csv")
-	log.Println("Step 2: Invalid votes:", twoSummary.invalid)
-	log.Println("Step 2: Valid votes:", twoSummary.valid)
+	log.Println("Step 2: Invalid votes:", twoSummary.Invalid)
+	log.Println("Step 2: Valid votes:", twoSummary.Valid)
 
 	// step three: grad/undergrad
 	log.Println()
 	log.Println("Step 3: Grad/undergrad")
-	validPostThree, invalidPostThree, threeSummary := stepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
+	validPostThree, invalidPostThree, threeSummary := steps.StepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
 	storeVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
 	storeVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
 	storeSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
-	log.Println("Step 3: Modified votes:", threeSummary.invalid)
-	log.Println("Step 3: Valid votes:", threeSummary.valid)
+	log.Println("Step 3: Modified votes:", threeSummary.Invalid)
+	log.Println("Step 3: Valid votes:", threeSummary.Valid)
 
 	// step four: Incentives
 	log.Println()
 	log.Println("Step 4: Incentives")
-	postFour, winners, fourSummary := stepFour(validPostThree, seed, numToPick)
+	postFour, winners, fourSummary := steps.StepFour(validPostThree, seed, numToPick)
 	storeVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
 	storeSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
 	storeAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
-	log.Println("Step 4: Valid votes:", threeSummary.valid)
+	log.Println("Step 4: Valid votes:", threeSummary.Valid)
 	log.Println("Step 4: Selected winners:", len(winners))
 
 	//experimental
-	stepFourtyTwo(postFour, "output/results")
+	steps.StepFourtyTwo(postFour, "output/results")
 }
 
 const VALID_STATUS = 4
@@ -223,12 +207,12 @@ func loadAlreadyVoted(folderName string, upToDay int64) []string {
 		}
 	}
 
-	alreadyVoted = removeDuplicateStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)
+	alreadyVoted = util.RemoveDuplicateStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)
 
 	return alreadyVoted
 }
 
-func storeVotes(votes []Vote, filename string) {
+func storeVotes(votes []util.Vote, filename string) {
 	//store the vote.raw in csv format under filename
 	f, err := os.Create("output/" + filename)
 	if err != nil {
@@ -248,7 +232,7 @@ func storeVotes(votes []Vote, filename string) {
 	w.Flush() // make sure we flush before closing file
 }
 
-func storeSummary(summary Summary, filename string) {
+func storeSummary(summary util.Summary, filename string) {
 	f, err := os.Create("output/" + filename)
 	if err != nil {
 		log.Fatal(err)
@@ -256,28 +240,28 @@ func storeSummary(summary Summary, filename string) {
 	// remember to close the file
 	defer f.Close()
 
-	_, err = f.WriteString(summary.stepInfo + "\n")
+	_, err = f.WriteString(summary.StepInfo + "\n")
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Processed: %d\n", summary.processed))
+	_, err = f.WriteString(fmt.Sprintf("Processed: %d\n", summary.Processed))
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Valid: %d\n", summary.valid))
+	_, err = f.WriteString(fmt.Sprintf("Valid: %d\n", summary.Valid))
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.invalid))
+	_, err = f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.Invalid))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if len(summary.log) != 0 {
+	if len(summary.Log) != 0 {
 		_, err = f.WriteString("\n\nLog Messages:\n")
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, message := range summary.log {
+		for _, message := range summary.Log {
 			_, err = f.WriteString(message + "\n")
 			if err != nil {
 				log.Fatal(err)

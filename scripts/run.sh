@@ -5,6 +5,6 @@ cd "$(dirname "$0")"/.. || exit
 
 mkdir -p build
 
-go build -o build/BallotCleaner main.go load.go util.go 1.go 2.go 3.go 4.go 42.go IRV.go|| exit
+go build -o build/BallotCleaner cmd/main/main.go|| exit
 
 ./build/BallotCleaner "$@"

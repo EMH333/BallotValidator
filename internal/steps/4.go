@@ -1,12 +1,14 @@
-package main
+package steps
 
 import (
 	"fmt"
 	"hash/fnv"
 	"math/rand"
+
+	"ethohampton.com/BallotCleaner/internal/util"
 )
 
-func stepFour(votes []Vote, seed string, numberToPick int) ([]Vote, []string, Summary) {
+func StepFour(votes []util.Vote, seed string, numberToPick int) ([]util.Vote, []string, util.Summary) {
 	var initialSize int = len(votes)
 	var winners []string
 	var logMessages []string
@@ -19,7 +21,7 @@ func stepFour(votes []Vote, seed string, numberToPick int) ([]Vote, []string, Su
 	for i := 0; i < numberToPick; i++ {
 		randomVal := rand.Intn(initialSize)
 		winner := votes[randomVal] // pick winner
-		if !contains(&winners, winner.ONID) {
+		if !util.Contains(&winners, winner.ONID) {
 			winners = append(winners, winner.ONID)
 			logMessages = append(logMessages, "Winner: "+winner.ONID+" with response ID "+winner.ID+" chosen with random value "+fmt.Sprint(randomVal))
 		} else {
@@ -27,10 +29,10 @@ func stepFour(votes []Vote, seed string, numberToPick int) ([]Vote, []string, Su
 		}
 	}
 
-	return votes, winners, Summary{
-		stepInfo:  "Step 4: Incentives",
-		processed: initialSize,
-		valid:     initialSize,
-		invalid:   0,
-		log:       logMessages}
+	return votes, winners, util.Summary{
+		StepInfo:  "Step 4: Incentives",
+		Processed: initialSize,
+		Valid:     initialSize,
+		Invalid:   0,
+		Log:       logMessages}
 }

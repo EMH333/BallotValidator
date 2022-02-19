@@ -1,24 +1,26 @@
-package main
+package steps
 
 import (
 	"testing"
 	"time"
+
+	"ethohampton.com/BallotCleaner/internal/util"
 )
 
 func TestStepTwo(t *testing.T) {
 	var alreadyVoted []string = []string{"000", "056"}
-	var votes []Vote = []Vote{
-		{[]string{"123", "456", "789"}, time.Now(), "123", ""},
-		{[]string{"123", "456", "789"}, time.Now(), "123", ""}, //invalid double vote
-		{[]string{"012", "123", "456"}, time.Now(), "056", ""}, //invalid
-		{[]string{"456", "789", "012"}, time.Now(), "456", ""},
-		{[]string{"012", "123", "456"}, time.Now(), "000", ""}, //invalid
-		{[]string{"789", "012", "123"}, time.Now(), "789", ""},
-		{[]string{"012", "123", "456"}, time.Now(), "012", ""},
-		{[]string{"012", "123", "456"}, time.Now(), "345", ""},
+	var votes []util.Vote = []util.Vote{
+		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "123", ID: ""},
+		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "123", ID: ""}, //invalid double vote
+		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "056", ID: ""}, //invalid
+		{Raw: []string{"456", "789", "012"}, Timestamp: time.Now(), ONID: "456", ID: ""},
+		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "000", ID: ""}, //invalid
+		{Raw: []string{"789", "012", "123"}, Timestamp: time.Now(), ONID: "789", ID: ""},
+		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "012", ID: ""},
+		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "345", ID: ""},
 	}
 
-	valid, invalid, votedList, _ := stepTwo(votes, &alreadyVoted)
+	valid, invalid, votedList, _ := StepTwo(votes, &alreadyVoted)
 
 	if len(valid)+len(invalid) != len(votes) {
 		t.Error("Total vote counts don't match")
