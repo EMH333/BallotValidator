@@ -81,7 +81,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 		//make sure it is a complete row
 		if rec[IMPORT_COMPLETE] != "TRUE" {
-			log.Fatalf("Vote is not complete: %+v\n", rec)
+			log.Printf("Vote is not complete: %+v\n", rec)
+			continue
 		}
 
 		id := rec[IMPORT_ID]
