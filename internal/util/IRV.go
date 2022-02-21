@@ -49,27 +49,42 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		if winner != "" {
-			logMessages = append(logMessages, "Winner: "+winner)
+			logMessages = append(logMessages, "", "Winner: "+winner)
 			break
 		}
 
 		//remove the candidate with the least votes
 		var lowestCandidate string
 		var lowestVotes int
+		var secondLowestVotes int
 		for candidate, votes := range candidateVotes {
 			if lowestVotes == 0 || votes < lowestVotes {
 				lowestCandidate = candidate
 				lowestVotes = votes
 			}
-		}
-		logMessages = append(logMessages, "", "Removing "+lowestCandidate+" with "+fmt.Sprint(lowestVotes)+" from the election")
-		//remove the candidate from all ballots
-		for i := range ballots {
-			for j := range ballots[i].Choices {
-				if ballots[i].Choices[j] == lowestCandidate {
-					ballots[i].Choices[j] = ""
-				}
+			if votes > lowestVotes && (secondLowestVotes == 0 || votes < secondLowestVotes) {
+				secondLowestVotes = votes
 			}
+		}
+
+		var numWithLowestVotes int
+		var lowestCandidates []string
+		for c, v := range candidateVotes {
+			if v == lowestVotes {
+				numWithLowestVotes++
+				lowestCandidates = append(lowestCandidates, c)
+			}
+		}
+
+		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes)+" Second lowest votes: "+strconv.Itoa(secondLowestVotes))
+		if lowestVotes == 1 && numWithLowestVotes < secondLowestVotes {
+			for _, c := range lowestCandidates {
+				logMessages = append(logMessages, "Removing "+c+" with "+fmt.Sprint(lowestVotes)+" from the election")
+				removeFromBallots(&ballots, c)
+			}
+		} else {
+			logMessages = append(logMessages, "Removing "+lowestCandidate+" with "+fmt.Sprint(lowestVotes)+" from the election")
+			removeFromBallots(&ballots, lowestCandidate)
 		}
 
 		roundNumber++
@@ -77,6 +92,17 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 	}
 
 	return logMessages
+}
+
+func removeFromBallots(ballots *[]IRVBallot, candidate string) {
+	//remove the candidate from all ballots
+	for i := range *ballots {
+		for j := range (*ballots)[i].Choices {
+			if (*ballots)[i].Choices[j] == candidate {
+				(*ballots)[i].Choices[j] = ""
+			}
+		}
+	}
 }
 
 func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
