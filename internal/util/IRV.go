@@ -67,6 +67,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 			}
 		}
 
+		// loop through and see if there are multiple canidates w/ the lowest number of votes
 		var numWithLowestVotes int
 		var lowestCandidates []string
 		for c, v := range candidateVotes {
@@ -77,12 +78,14 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes)+" Second lowest votes: "+strconv.Itoa(secondLowestVotes))
-		if lowestVotes == 1 && numWithLowestVotes < secondLowestVotes {
+		//if we can remove all the lowest canidates without affecting the other results, then do it
+		if lowestVotes == 1 && (numWithLowestVotes*lowestVotes) < secondLowestVotes {
 			for _, c := range lowestCandidates {
 				logMessages = append(logMessages, "Removing "+c+" with "+fmt.Sprint(lowestVotes)+" from the election")
 				removeFromBallots(&ballots, c)
 			}
 		} else {
+			//othwerwise, remove the lowest canidate (which is essentially random)
 			logMessages = append(logMessages, "Removing "+lowestCandidate+" with "+fmt.Sprint(lowestVotes)+" from the election")
 			removeFromBallots(&ballots, lowestCandidate)
 		}
