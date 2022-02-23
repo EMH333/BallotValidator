@@ -16,7 +16,7 @@ var validVotersUndefined []string
 
 var alreadyVotedPrevious []string
 
-const numToPick int = 10 // how many winners to pick //TODO tie into command line
+const numToPick int = 15 // how many winners to pick //TODO tie into command line
 
 func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes
@@ -117,7 +117,7 @@ func main() {
 	// step four: Incentives
 	log.Println()
 	log.Println("Step 4: Incentives")
-	postFour, winners, fourSummary := steps.StepFour(validPostThree, seed, numToPick)
+	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostThree, seed, numToPick)
 	util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
 	util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
 	util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
