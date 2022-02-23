@@ -39,7 +39,7 @@ The `results` folder contains the results for each race. It is only accurate whe
 2. `rm -r output/`
 3. `./scripts/run.sh <day> <data_filename>`
 4. Copy the script output into the `output` folder with filename `rawOutput.log`
-5. Upload to box. Data in the root of `output` folder into `Raw` for each day. Then again upload the incentive winners and already voted into the root of each day folder
+5. Upload to box. Data in the root of `output` into the folder for each day. Upload the incentives winners into the `Incentives` folder.
 6. Update ballot count spreadsheet and confirm that the numbers are correct
 7. Copy `alreadyVoted-<day>.csv` into `data/alreadyVoted` folder
 8. Repeat for all days with new data that is complete (no partial days)
