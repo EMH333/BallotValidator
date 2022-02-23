@@ -28,6 +28,10 @@ const TALLY_SFCCHAIR_OPTIONS_NUMBER = 1
 
 // designed to do all the counting and output a nice little summary
 func StepFourtyTwo(votes []util.Vote, outputDirname string) {
+	if len(votes) == 0 {
+		log.Fatal("No votes to find results for")
+	}
+
 	var ballotYes int = 0
 	var ballotNo int = 0
 

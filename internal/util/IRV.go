@@ -22,6 +22,10 @@ type IRVBallot struct {
 }
 
 func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
+	if len(votes) == 0 {
+		return []string{"No votes cast"}
+	}
+
 	var majority int = (len(votes) / 2) + 1
 	var logMessages []string
 
