@@ -45,6 +45,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	csvReader.Comma = ','
 	csvReader.TrimLeadingSpace = true
 
+	var incompleteVotes int = 0
+
 	for {
 		rec, err := csvReader.Read()
 		if err == io.EOF {
@@ -81,7 +83,9 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 		//make sure it is a complete row
 		if rec[IMPORT_COMPLETE] != "TRUE" {
-			log.Printf("Vote is not complete: %+v\n", rec)
+			//TODO determine status and go from there
+			//log.Printf("Vote is not complete: %+v\n", rec)
+			incompleteVotes++
 			continue
 		}
 
@@ -93,6 +97,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 		//append rec to votes
 		votes = append(votes, Vote{Raw: rec, Timestamp: timestamp, ONID: ONID, ID: id})
 	}
+
+	log.Printf("%d votes were incomplete, and not counted\n", incompleteVotes)
 
 	return votes
 }
@@ -268,4 +274,20 @@ func LoadSeed() string {
 		log.Fatal("seed.txt is empty")
 	}
 	return seed
+}
+
+func LoadStringArrayFile(fileName string) []string {
+	var strings []string
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Fatalln("Error opening file", err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		strings = append(strings, scanner.Text())
+	}
+
+	return strings
 }

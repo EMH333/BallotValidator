@@ -49,6 +49,11 @@ func main() {
 	_, _, alreadyVoted, _ := steps.StepTwo(votes, &[]string{})
 	log.Printf("There are %d people who have already voted\n", len(alreadyVoted))
 
+	// load people who don't want to be counted and consider them to have already voted
+	doNotCount := util.LoadStringArrayFile("data/doNotRemind.csv")
+	alreadyVoted = append(alreadyVoted, doNotCount...)
+	log.Printf("There are %d people who don't want to be reminded\n", len(doNotCount))
+
 	//now loop through all valid voters and see if they have already voted
 	var onidEmails []string
 	for _, v := range validVotersGraduate {

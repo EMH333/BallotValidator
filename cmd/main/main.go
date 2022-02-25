@@ -124,6 +124,9 @@ func main() {
 	log.Println("Step 4: Valid votes:", threeSummary.Valid)
 	log.Println("Step 4: Selected winners:", len(winners))
 
-	//experimental
-	steps.StepFourtyTwo(postFour, "output/results")
+	//only figure out the winners if we are across multiple days
+	if startDay != endDay {
+		//experimental
+		steps.StepFourtyTwo(postFour, "output/results")
+	}
 }
