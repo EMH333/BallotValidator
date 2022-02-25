@@ -49,3 +49,5 @@ The `results` folder contains the results for each race. It is only accurate whe
 ## Other Programs
 
 `./scripts/notVoted.sh <ballot_file>` - Creates a file (`output/haveNotVoted.csv`) that lists all the voters who have not voted.
+
+`./scripts/greek.sh <ballot_file>` - Creates a file (`output/greek-info.csv`) that lists all the fraternity and sorority life organizations and their respective voter turnouts.
