@@ -82,16 +82,23 @@ func main() {
 
 	log.Printf("%d organizations\n", len(orgs))
 
-	//TODO filter based on size of organization
 	//print the map
-	var output []string
+	var outputLarge, outputSmall []string
 	for org, orgData := range orgs {
-		output = append(output, fmt.Sprintf("%s, =%d/%d", org, orgData.Voted, orgData.Total))
+		//anything greater than 50 gets put into the large orgs contest
+		if orgData.Total > 50 {
+			outputLarge = append(outputLarge, fmt.Sprintf("%s, =%d/%d", org, orgData.Voted, orgData.Total))
+		} else {
+			outputSmall = append(outputSmall, fmt.Sprintf("%s, =%d/%d", org, orgData.Voted, orgData.Total))
+		}
 	}
-	sort.Strings(output)
+
+	sort.Strings(outputLarge)
+	sort.Strings(outputSmall)
 
 	//write to file
-	util.StoreAlreadyVoted(output, "greek-info.csv")
+	util.StoreAlreadyVoted(outputLarge, "greek-info-large.csv")
+	util.StoreAlreadyVoted(outputSmall, "greek-info-small.csv")
 
 }
 
