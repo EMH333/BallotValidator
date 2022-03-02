@@ -1,4 +1,4 @@
-# BallotCleaner
+# BallotValidator
 
 This was designed specifically for the ASOSU 2022 election where data was ingested from Qualtrics. It was designed to clean the data and create a CSV file that can be used to determine the winners of the election.
 
