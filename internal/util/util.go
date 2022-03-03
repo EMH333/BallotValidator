@@ -25,11 +25,12 @@ func RemoveDuplicateStr(strSlice []string) []string {
 }
 
 func CleanVote(vote string) string {
+	vote = strings.TrimSpace(vote)
+
 	if vote == "Write in:" || vote == "Write-in:" {
 		return ""
 	}
 
-	vote = strings.TrimSpace(vote)
 	vote = strings.ToUpper(vote)
 
 	//TODO add removal of entrys found to be invalid

@@ -48,16 +48,16 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 		}
 
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS)
+		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 6)
 
 		///////////////////SFC AT LARGE/////////////////////////////
-		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS)
+		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 4)
 
 		///////////////////UNDERGRAD REPS/////////////////////////////
-		countPopularityVote(&vote, &undergradReps, TALLY_UNDERGRADREPS_OPTIONS, TALLY_UNDERGRADREPS_WRITEINS)
+		countPopularityVote(&vote, &undergradReps, TALLY_UNDERGRADREPS_OPTIONS, TALLY_UNDERGRADREPS_WRITEINS, 20)
 
 		///////////////////GRAD REPS/////////////////////////////
-		countPopularityVote(&vote, &gradReps, TALLY_GRADREPS_OPTIONS, TALLY_GRADREPS_WRITEINS)
+		countPopularityVote(&vote, &gradReps, TALLY_GRADREPS_OPTIONS, TALLY_GRADREPS_WRITEINS, 5)
 	}
 
 	//speaker of the house
@@ -116,12 +116,14 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	writeIRVResults(sfcChairResults, outputDirname+"/sfc-chair.txt")
 }
 
-func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosition int, numWriteins int) {
-	votes := strings.Split(vote.Raw[initialPosition], ",")
+func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosition int, numWriteins int, maxVotes int) {
+	rawVotes := strings.Split(vote.Raw[initialPosition], ",")
+	var votes []string
 	// clean up the write in entries
-	for i, vote := range votes {
-		if vote == "Write in:" || vote == "Write-in:" {
-			votes[i] = ""
+	for _, vote := range rawVotes {
+		vote = strings.TrimSpace(vote)
+		if !(vote == "Write in:" || vote == "Write-in:") {
+			votes = append(votes, vote)
 		}
 	}
 
@@ -135,7 +137,7 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 	votes = util.RemoveDuplicateStr(votes)
 
 	// can't pick more than the max for these positions
-	if len(votes) > numWriteins {
+	if len(votes) > maxVotes {
 		log.Println("WARNING: More than the max number of votes for", vote.ONID)
 		return
 	}

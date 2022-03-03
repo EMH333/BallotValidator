@@ -23,7 +23,7 @@ func TestCountPopularityVote(t *testing.T) {
 	var results map[string]int = make(map[string]int)
 
 	for _, v := range votes {
-		countPopularityVote(&v, &results, 0, 2)
+		countPopularityVote(&v, &results, 0, 2, 8)
 	}
 
 	for k, v := range results {
@@ -37,4 +37,28 @@ func TestCountPopularityVote(t *testing.T) {
 			t.Errorf("Expected 4 votes for %s, got %d", k, v)
 		}
 	}
+}
+
+func TestMaxVotesPopularity(t *testing.T) {
+	var votes []util.Vote = []util.Vote{
+		{Raw: []string{"a,b,c", "", ""}, ONID: "a"},
+		{Raw: []string{"a,b,c,d", "", ""}, ONID: "b"}, //too many votes
+		{Raw: []string{"a, Write in:", "e", "f"}, ONID: "c"},
+		{Raw: []string{"a, Write-in:", "", "f"}, ONID: "d"},
+		{Raw: []string{"a,b, Write in:", "e", "f"}, ONID: "e"},
+	}
+	var results map[string]int = make(map[string]int)
+
+	for _, v := range votes {
+		countPopularityVote(&v, &results, 0, 2, 3)
+	}
+
+	if results["a"] != 3 {
+		t.Errorf("Expected 3 votes for a, got %d", results["a"])
+	}
+
+	if results["d"] != 0 {
+		t.Errorf("Expected 0 votes for d, got %d", results["d"])
+	}
+
 }
