@@ -134,6 +134,12 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 
 	votes = util.RemoveDuplicateStr(votes)
 
+	// can't pick more than the max for these positions
+	if len(votes) > numWriteins {
+		log.Println("WARNING: More than the max number of votes for", vote.ONID)
+		return
+	}
+
 	for _, v := range votes {
 		if v != "" {
 			(*position)[v]++
