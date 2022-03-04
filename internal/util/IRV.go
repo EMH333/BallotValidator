@@ -81,7 +81,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 			}
 		}
 
-		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes)+" Second lowest votes: "+strconv.Itoa(secondLowestVotes))
+		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes))
 		//if we can remove all the lowest canidates without affecting the other results, then do it
 		if lowestVotes == 1 && (numWithLowestVotes*lowestVotes) < secondLowestVotes {
 			for _, c := range lowestCandidates {

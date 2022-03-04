@@ -87,9 +87,9 @@ func main() {
 	for org, orgData := range orgs {
 		//anything greater than 50 gets put into the large orgs contest
 		if orgData.Total > 50 {
-			outputLarge = append(outputLarge, fmt.Sprintf("%s, =%d/%d", org, orgData.Voted, orgData.Total))
+			outputLarge = append(outputLarge, fmt.Sprintf("%s,%d,%d, =%d/%d", org, orgData.Voted, orgData.Total, orgData.Voted, orgData.Total))
 		} else {
-			outputSmall = append(outputSmall, fmt.Sprintf("%s, =%d/%d", org, orgData.Voted, orgData.Total))
+			outputSmall = append(outputSmall, fmt.Sprintf("%s,%d,%d, =%d/%d", org, orgData.Voted, orgData.Total, orgData.Voted, orgData.Total))
 		}
 	}
 

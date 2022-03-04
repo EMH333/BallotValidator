@@ -61,7 +61,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 			continue
 		}
 
-		timestamp, err := time.Parse("1/2/2006 15:04", rec[IMPORT_TIMESTAMP]) //2/14/2022 9:10
+		timestamp, err := time.Parse("2006-01-02 15:04:05", rec[IMPORT_TIMESTAMP]) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
 		}
