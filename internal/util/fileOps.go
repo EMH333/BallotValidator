@@ -30,6 +30,15 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	var validStartTime = EPOCH.Add(time.Duration(startDay) * 24 * time.Hour)
 	var validEndTime = EPOCH.Add(time.Duration(endDay+1) * 24 * time.Hour) // add one day to end day
 
+	//TODO verify this is correct
+	if endDay == 18 {
+		newEndTime, err := time.Parse("2006-Jan-02 15:04:05", "2022-Mar-04 17:00:59")
+		if err != nil {
+			log.Fatal(err)
+		}
+		validEndTime = newEndTime
+	}
+
 	var votes []Vote
 	//return []string{"TODO"}
 	//load csv file
