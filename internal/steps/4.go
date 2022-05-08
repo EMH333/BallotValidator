@@ -20,7 +20,10 @@ func StepFour(previousVotes []string, votes []util.Vote, seed string, numberToPi
 	rand.Seed(int64(hashAlgo.Sum64())) //seed based on the given seed (which should already include the start and end dates)
 
 	for i := 0; i < numberToPick; i++ {
-		randomVal := rand.Intn(initialSizeCurrentVotes + initialSizePreviousVotes)
+		//randomVal := rand.Intn(initialSizeCurrentVotes + initialSizePreviousVotes)
+		//randomVal := rand.Intn(initialSizeCurrentVotes) // for the weekend draw
+		randomVal := rand.Intn(initialSizeCurrentVotes + initialSizePreviousVotes + 4) // for the 4 people who tagged us
+
 		//if the random val is in the current votes, then grab the vote and add it to the winners
 		//otherwise it is in the previous votes, so use that
 		if randomVal < initialSizeCurrentVotes {
@@ -31,7 +34,7 @@ func StepFour(previousVotes []string, votes []util.Vote, seed string, numberToPi
 			} else {
 				i-- //try again
 			}
-		} else {
+		} else if randomVal < initialSizeCurrentVotes+initialSizePreviousVotes {
 			winner := previousVotes[randomVal-initialSizeCurrentVotes] // pick winner
 			if !util.Contains(&winners, winner) {
 				winners = append(winners, winner)
@@ -39,6 +42,9 @@ func StepFour(previousVotes []string, votes []util.Vote, seed string, numberToPi
 			} else {
 				i-- //try again
 			}
+		} else {
+			winners = append(winners, "tagged "+fmt.Sprint(randomVal-initialSizeCurrentVotes-initialSizePreviousVotes))
+			logMessages = append(logMessages, "Winner: tagged "+fmt.Sprint(randomVal-initialSizeCurrentVotes-initialSizePreviousVotes)+" chosen with random value "+fmt.Sprint(randomVal))
 		}
 	}
 
