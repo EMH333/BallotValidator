@@ -24,10 +24,11 @@ func RemoveDuplicateStr(strSlice []string) []string {
 	return list
 }
 
+//TODO this isn't handling write-ins correctly
 func CleanVote(vote string) string {
 	vote = strings.TrimSpace(vote)
 
-	if vote == "Write in:" || vote == "Write-in:" {
+	if vote == "Write in:" || vote == "Write-in:" || vote == "Write-In" {
 		return ""
 	}
 

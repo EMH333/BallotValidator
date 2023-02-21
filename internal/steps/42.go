@@ -10,22 +10,16 @@ import (
 )
 
 //TODO set correct index values
-const TALLY_MEASURE = 17
-const TALLY_SENATE_OPTIONS = 18
-const TALLY_SENATE_WRITEINS = 6
-const TALLY_SFCATLARGE_OPTIONS = TALLY_SENATE_OPTIONS + TALLY_SENATE_WRITEINS + 1
-const TALLY_SFCATLARGE_WRITEINS = 4
-const TALLY_UNDERGRADREPS_OPTIONS = TALLY_SFCATLARGE_OPTIONS + TALLY_SFCATLARGE_WRITEINS + 2 // one more for the additional grad/undergrad question
-const TALLY_UNDERGRADREPS_WRITEINS = 20
-const TALLY_GRADREPS_OPTIONS = TALLY_UNDERGRADREPS_OPTIONS + TALLY_UNDERGRADREPS_WRITEINS + 1
-const TALLY_GRADREPS_WRITEINS = 5
 
-const TALLY_SPEAKER_OPTIONS_START = TALLY_GRADREPS_OPTIONS + TALLY_GRADREPS_WRITEINS + 1
-const TALLY_SPEAKER_OPTIONS_NUMBER = 6                                                          //doesn't include writein
-const TALLY_PRES_OPTIONS_START = TALLY_SPEAKER_OPTIONS_START + TALLY_SPEAKER_OPTIONS_NUMBER + 2 //2 for the write-in
-const TALLY_PRES_OPTIONS_NUMBER = 3
-const TALLY_SFCCHAIR_OPTIONS_START = TALLY_PRES_OPTIONS_START + TALLY_PRES_OPTIONS_NUMBER + 2 //2 because of the writeins
-const TALLY_SFCCHAIR_OPTIONS_NUMBER = 1
+const TALLY_SENATE_OPTIONS = 17 //index
+const TALLY_SENATE_WRITEINS = 18
+const TALLY_SFCATLARGE_OPTIONS = TALLY_SENATE_OPTIONS + TALLY_SENATE_WRITEINS + 1 //index
+const TALLY_SFCATLARGE_WRITEINS = 5
+
+const TALLY_PRES_OPTIONS_START = TALLY_SFCATLARGE_OPTIONS + TALLY_SFCATLARGE_WRITEINS + 2 //2 for the write-in //index
+const TALLY_PRES_OPTIONS_NUMBER = 2
+const TALLY_SFCCHAIR_OPTIONS_START = TALLY_PRES_OPTIONS_START + TALLY_PRES_OPTIONS_NUMBER + 2 //2 because of the writeins //index
+const TALLY_SFCCHAIR_OPTIONS_NUMBER = 2
 
 // designed to do all the counting and output a nice little summary
 func StepFourtyTwo(votes []util.Vote, outputDirname string) {
@@ -39,19 +33,20 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	//TODO confirm number of seats for each
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 6)
+		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
 
 		///////////////////SFC AT LARGE/////////////////////////////
 		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 5)
 	}
+	//log.Println("Counted Popularity Votes")
 
 	//TODO set correct names
 	//presidental ticket
-	presidentResults := util.RunIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President", "Matteo Paola for President & Sierra Young for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
 	//TODO set correct names
 	//SFC chair
-	sfcChairResults := util.RunIRV(votes, []string{"Joe Page"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
+	sfcChairResults := util.RunIRV(votes, []string{"Matteo Paola", "Noa Stoll"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
@@ -77,7 +72,7 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 	// clean up the write in entries
 	for _, vote := range rawVotes {
 		vote = strings.TrimSpace(vote)
-		if !(vote == "Write in:" || vote == "Write-in:") {
+		if !(vote == "Write in:" || vote == "Write-in:" || vote == "Write-In") {
 			votes = append(votes, vote)
 		}
 	}
@@ -104,6 +99,7 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 	}
 }
 
+//TODO order by votes
 func writeMultipleVoteResults(results *map[string]int, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {

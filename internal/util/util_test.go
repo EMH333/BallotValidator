@@ -53,6 +53,7 @@ func TestCleanVote(t *testing.T) {
 		{" A", "A"},
 		{"Write in:", ""},
 		{"Write-in:", ""},
+		{"Write-In", ""},
 	}
 
 	for _, testCase := range testCases {

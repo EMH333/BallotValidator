@@ -19,7 +19,7 @@ var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01")
 //TODO set correct import values
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
-const IMPORT_ONID = 51
+const IMPORT_ONID = 50
 const IMPORT_COMPLETE = 6
 const IMPORT_ID = 8
 
