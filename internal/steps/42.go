@@ -9,6 +9,7 @@ import (
 	"ethohampton.com/BallotCleaner/internal/util"
 )
 
+//TODO set correct index values
 const TALLY_MEASURE = 17
 const TALLY_SENATE_OPTIONS = 18
 const TALLY_SENATE_WRITEINS = 6
@@ -32,40 +33,23 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 		log.Fatal("No votes to find results for")
 	}
 
-	var ballotYes int = 0
-	var ballotNo int = 0
-
 	var senate map[string]int = make(map[string]int)
 	var sfcAtLarge map[string]int = make(map[string]int)
-	var undergradReps map[string]int = make(map[string]int)
-	var gradReps map[string]int = make(map[string]int)
 
+	//TODO confirm number of seats for each
 	for _, vote := range votes {
-		if vote.Raw[TALLY_MEASURE] == "Yes" {
-			ballotYes++
-		} else if vote.Raw[TALLY_MEASURE] == "No" {
-			ballotNo++
-		}
-
 		///////////////////SENATE/////////////////////////////
 		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 6)
 
 		///////////////////SFC AT LARGE/////////////////////////////
-		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 4)
-
-		///////////////////UNDERGRAD REPS/////////////////////////////
-		countPopularityVote(&vote, &undergradReps, TALLY_UNDERGRADREPS_OPTIONS, TALLY_UNDERGRADREPS_WRITEINS, 20)
-
-		///////////////////GRAD REPS/////////////////////////////
-		countPopularityVote(&vote, &gradReps, TALLY_GRADREPS_OPTIONS, TALLY_GRADREPS_WRITEINS, 5)
+		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 5)
 	}
 
-	//speaker of the house
-	speakerResults := util.RunIRV(votes, []string{"Abril Uribe", "Jordan Porter", "Madelyn Neuschwander", "Jared Pratt", "Rooney Ferguson", "Jarrett Alto"}, TALLY_SPEAKER_OPTIONS_NUMBER, TALLY_SPEAKER_OPTIONS_START)
-
+	//TODO set correct names
 	//presidental ticket
 	presidentResults := util.RunIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President", "Matteo Paola for President & Sierra Young for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
+	//TODO set correct names
 	//SFC chair
 	sfcChairResults := util.RunIRV(votes, []string{"Joe Page"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
@@ -74,40 +58,11 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 		log.Fatal("Could not create output directory", outputDirname)
 	}
 
-	//write to ballot measure file
-	f, err := os.Create(outputDirname + "/ballot-measure.csv")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = f.WriteString(fmt.Sprint("Ballot Measure Yes,", ballotYes, "\n"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = f.WriteString(fmt.Sprint("Ballot Measure No,", ballotNo, "\n"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = f.Sync()
-	if err != nil {
-		log.Fatal(err)
-	}
-	f.Close()
-
 	//write to senate file
 	writeMultipleVoteResults(&senate, outputDirname+"/senate.csv")
 
 	//write to SFC At-large file
 	writeMultipleVoteResults(&sfcAtLarge, outputDirname+"/sfc-at-large.csv")
-
-	//write to Undergrad Reps file
-	writeMultipleVoteResults(&undergradReps, outputDirname+"/undergrad-reps.csv")
-
-	//write to Grad Reps file
-	writeMultipleVoteResults(&gradReps, outputDirname+"/grad-reps.csv")
-
-	//write to speaker of the house file
-	writeIRVResults(speakerResults, outputDirname+"/speaker-of-the-house.txt")
 
 	//write to president file
 	writeIRVResults(presidentResults, outputDirname+"/president.txt")

@@ -30,9 +30,13 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVoters := util.LoadValidVoters("data/validVoters.csv")
+	validVotersGraduate := util.LoadValidVoters("data/validVoters.csv", "G")
+	validVotersUndergrad := util.LoadValidVoters("data/validVoters.csv", "UG")
+	validVotersUndefined := util.LoadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
 
-	log.Printf("There are %d valid student voters\n", len(validVoters))
+	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
+	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
+	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
 
 	// Load the votes
 	log.Println("Loading votes...")
@@ -52,7 +56,17 @@ func main() {
 
 	//now loop through all valid voters and see if they have already voted
 	var onidEmails []string
-	for _, v := range validVoters {
+	for _, v := range validVotersGraduate {
+		if !util.Contains(&alreadyVoted, v) {
+			onidEmails = append(onidEmails, v)
+		}
+	}
+	for _, v := range validVotersUndergrad {
+		if !util.Contains(&alreadyVoted, v) {
+			onidEmails = append(onidEmails, v)
+		}
+	}
+	for _, v := range validVotersUndefined {
 		if !util.Contains(&alreadyVoted, v) {
 			onidEmails = append(onidEmails, v)
 		}

@@ -13,11 +13,13 @@ import (
 	"time"
 )
 
-var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2022-Feb-14 00:00:01")
+//TODO set epoch time to be the start of the election not beginning of day
+var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01")
 
+//TODO set correct import values
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
-const IMPORT_ONID = 74
+const IMPORT_ONID = 51
 const IMPORT_COMPLETE = 6
 const IMPORT_ID = 8
 
@@ -32,7 +34,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 	//TODO verify this is correct
 	if endDay == 18 {
-		newEndTime, err := time.Parse("2006-Jan-02 15:04:05", "2022-Mar-04 17:00:59")
+		newEndTime, err := time.Parse("2006-Jan-02 15:04:05", "2023-Mar-10 17:00:59")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -40,7 +42,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	}
 
 	var votes []Vote
-	//return []string{"TODO"}
+
 	//load csv file
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -70,6 +72,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 			continue
 		}
 
+		//TODO skip preview votes
+
 		timestamp, err := time.Parse("2006-01-02 15:04:05", rec[IMPORT_TIMESTAMP]) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
@@ -92,8 +96,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 		//make sure it is a complete row
 		if strings.ToUpper(rec[IMPORT_COMPLETE]) != "TRUE" {
-			//TODO determine status and go from there
-			//log.Printf("Vote is not complete: %+v\n", rec)
+			log.Printf("Vote is not complete: %+v\n", rec)
 			incompleteVotes++
 			continue
 		}
@@ -112,10 +115,11 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	return votes
 }
 
+//TODO set correct voter rolls values
 const VALID_STATUS = 4
 const VALID_ONID_EMAIL = 2
 
-func LoadValidVoters(fileName string, indicator string) []string {
+func LoadValidVoters(fileName string) []string {
 	var voters []string
 
 	//open csv file
@@ -127,8 +131,14 @@ func LoadValidVoters(fileName string, indicator string) []string {
 
 	//with modifications to handle the specifics of the valid votes list
 	csvReader := csv.NewReader(f)
-	csvReader.Comma = '\t'
+	//csvReader.Comma = '\t'
 	csvReader.TrimLeadingSpace = true
+
+	//skip the first row
+	_, err = csvReader.Read()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for {
 		rec, err := csvReader.Read()
@@ -139,10 +149,8 @@ func LoadValidVoters(fileName string, indicator string) []string {
 			log.Fatal(err)
 		}
 
-		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
-		if rec[VALID_STATUS] == indicator {
-			voters = append(voters, rec[VALID_ONID_EMAIL])
-		}
+		voters = append(voters, rec[VALID_ONID_EMAIL])
+
 	}
 
 	return voters

@@ -10,7 +10,9 @@ import (
 	"ethohampton.com/BallotCleaner/internal/util"
 )
 
-var validVoters []string
+var validVotersGraduate []string
+var validVotersUndergrad []string
+var validVotersUndefined []string
 
 var alreadyVotedPrevious []string
 
@@ -53,7 +55,7 @@ func main() {
 	var dayToDayFormat = fmt.Sprint(startDay) + "-" + fmt.Sprint(endDay)
 
 	//"random" seed so winners are deterministic
-	//var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
+	var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
@@ -62,9 +64,13 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVoters = util.LoadValidVoters("data/validVoters.csv")
+	validVotersGraduate = util.LoadValidVoters("data/validVoters.csv", "G")
+	validVotersUndergrad = util.LoadValidVoters("data/validVoters.csv", "UG")
+	validVotersUndefined = util.LoadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
 
-	log.Printf("There are %d valid student voters\n", len(validVoters))
+	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
+	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
+	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
@@ -80,7 +86,7 @@ func main() {
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVoters)
+	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
 	util.StoreVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
 	util.StoreSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
@@ -98,19 +104,29 @@ func main() {
 	log.Println("Step 2: Invalid votes:", twoSummary.Invalid)
 	log.Println("Step 2: Valid votes:", twoSummary.Valid)
 
+	// step three: grad/undergrad
+	log.Println()
+	log.Println("Step 3: Grad/undergrad")
+	validPostThree, invalidPostThree, threeSummary := steps.StepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
+	util.StoreVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
+	util.StoreVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
+	util.StoreSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
+	log.Println("Step 3: Modified votes:", threeSummary.Invalid)
+	log.Println("Step 3: Valid votes:", threeSummary.Valid)
+
 	// step four: Incentives
-	// log.Println()
-	// log.Println("Step 4: Incentives")
-	// postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostTwo, seed, numToPick)
-	// util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
-	// util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
-	// util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
-	// log.Println("Step 4: Valid votes:", twoSummary.Valid)
-	// log.Println("Step 4: Selected winners:", len(winners))
+	log.Println()
+	log.Println("Step 4: Incentives")
+	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostThree, seed, numToPick)
+	util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
+	util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
+	util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
+	log.Println("Step 4: Valid votes:", threeSummary.Valid)
+	log.Println("Step 4: Selected winners:", len(winners))
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
 		//experimental
-		steps.StepFourtyTwo(validPostTwo, "output/results")
+		steps.StepFourtyTwo(postFour, "output/results")
 	}
 }
