@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-//TODO set epoch time to be the start of the election not beginning of day
 var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01")
 
 //TODO set correct import values
@@ -115,8 +114,6 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	return votes
 }
 
-//TODO set correct voter rolls values
-const VALID_STATUS = 4
 const VALID_ONID_EMAIL = 2
 
 func LoadValidVoters(fileName string) []string {

@@ -134,7 +134,6 @@ func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
 	return candidateVotes, ballotsCountedThisRound
 }
 
-//TODO this doesn't match the system used for this election yet
 func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
 	var ballots []IRVBallot
 	var logMessages []string
