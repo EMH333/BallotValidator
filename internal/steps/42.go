@@ -99,7 +99,6 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 	}
 }
 
-//TODO order by votes
 func writeMultipleVoteResults(results *map[string]int, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
@@ -111,12 +110,30 @@ func writeMultipleVoteResults(results *map[string]int, filename string) {
 		log.Fatal(err)
 	}
 
-	for vote, count := range *results {
-		_, err = f.WriteString("\"" + vote + "\"" + "," + fmt.Sprint(count) + "\n")
+	//print results in order of value
+	//copy results to a new map so we can delete entries
+	var copy map[string]int = make(map[string]int)
+	for k, v := range *results {
+		copy[k] = v
+	}
+
+	for len(copy) > 0 {
+		var max int = 0
+		var maxKey string = ""
+		for k, v := range copy {
+			// sort by alphabetical order if same number of votes
+			if v > max || (v >= max && k < maxKey) {
+				max = v
+				maxKey = k
+			}
+		}
+		_, err = f.WriteString("\"" + maxKey + "\"" + "," + fmt.Sprint(max) + "\n")
 		if err != nil {
 			log.Fatal(err)
 		}
+		delete(copy, maxKey)
 	}
+
 	err = f.Sync()
 	if err != nil {
 		log.Fatal(err)
