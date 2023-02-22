@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -265,6 +266,9 @@ func StoreAlreadyVoted(alreadyVoted []string, filename string) {
 	}
 	// remember to close the file
 	defer f.Close()
+
+	//sort the alreadyVoted slice
+	sort.Strings(alreadyVoted)
 
 	for _, record := range alreadyVoted {
 		_, err = f.WriteString(record + "\n")
