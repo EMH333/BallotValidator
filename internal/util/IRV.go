@@ -41,9 +41,30 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		candidateVotes, ballotsCountedThisRound := countIRVVotes(&ballots)
 		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound))
 		logMessages = append(logMessages, "----------------------------------------------------")
+
+		//copy candidateVotes to a new map so we can delete entries
+		var candidateVotesCopy map[string]int = make(map[string]int)
+		for candidate, votes := range candidateVotes {
+			candidateVotesCopy[candidate] = votes
+		}
+
+		//print candidates in order of votes
+		for len(candidateVotesCopy) > 0 {
+			var max int = 0
+			var maxKey string = ""
+			for candidate, votes := range candidateVotesCopy {
+				if votes > max {
+					max = votes
+					maxKey = candidate
+				}
+			}
+			logMessages = append(logMessages, maxKey+" has "+strconv.Itoa(max)+" votes")
+			delete(candidateVotesCopy, maxKey)
+		}
+
+		//check if there is a winner yet
 		winner := ""
 		for candidate, votes := range candidateVotes {
-			logMessages = append(logMessages, candidate+" has "+strconv.Itoa(votes)+" votes")
 			//if someone has over the majority of the vote then they are the winner
 			if votes >= majority || len(candidateVotes) <= 1 {
 				winner = candidate
@@ -51,7 +72,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		if winner != "" {
-			logMessages = append(logMessages, "", "Winner: "+winner)
+			logMessages = append(logMessages, "", "Winner: "+winner+" with "+strconv.Itoa(candidateVotes[winner])+" votes"+" which is "+strconv.FormatFloat(float64(candidateVotes[winner]*100)/float64(len(votes)), 'f', 2, 64)+"% of the vote")
 			break
 		}
 
@@ -81,6 +102,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes))
+		//logMessages = append(logMessages, "Second lowest number of votes: "+strconv.Itoa(secondLowestVotes))
 		//if we can remove all the lowest candidates without affecting the other results, then do it
 		if lowestVotes == 1 && (numWithLowestVotes*lowestVotes) < secondLowestVotes {
 			for _, c := range lowestCandidates {
