@@ -14,8 +14,6 @@ The instant run-off voting functions as follows, for a single race:
 - Otherwise, we remove the canidate with the least number of votes (looping through every single entry of every single ballot) and reset to step 2
 */
 
-//TODO deal with ties better
-
 type IRVBallot struct {
 	Choices []string
 	ID      string
@@ -58,11 +56,12 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		//remove the candidate with the least votes
+		//if there is a tie, the candidate with the lowest alphabetical order is removed //TODO confirm this is the correct way to handle ties
 		var lowestCandidate string
 		var lowestVotes int
 		var secondLowestVotes int
 		for candidate, votes := range candidateVotes {
-			if lowestVotes == 0 || votes < lowestVotes {
+			if lowestVotes == 0 || votes < lowestVotes || (votes <= lowestVotes && candidate < lowestCandidate) {
 				lowestCandidate = candidate
 				lowestVotes = votes
 			}
@@ -82,14 +81,14 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		}
 
 		logMessages = append(logMessages, "", "Lowest number of votes: "+strconv.Itoa(lowestVotes))
-		//if we can remove all the lowest canidates without affecting the other results, then do it
+		//if we can remove all the lowest candidates without affecting the other results, then do it
 		if lowestVotes == 1 && (numWithLowestVotes*lowestVotes) < secondLowestVotes {
 			for _, c := range lowestCandidates {
 				logMessages = append(logMessages, "Removing "+c+" with "+fmt.Sprint(lowestVotes)+" from the election")
 				removeFromBallots(&ballots, c)
 			}
 		} else {
-			//othwerwise, remove the lowest canidate (which is essentially random)
+			//othwerwise, remove the lowest candidate (using algorithm from above)
 			logMessages = append(logMessages, "Removing "+lowestCandidate+" with "+fmt.Sprint(lowestVotes)+" from the election")
 			removeFromBallots(&ballots, lowestCandidate)
 		}
