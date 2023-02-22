@@ -24,6 +24,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		return []string{"No votes cast"}
 	}
 
+	//TODO calculate majority per round, not just the first round
 	var majority int = (len(votes) / 2) + 1
 	var logMessages []string
 
