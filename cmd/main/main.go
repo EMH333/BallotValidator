@@ -14,7 +14,7 @@ var validVoters []string
 
 var alreadyVotedPrevious []string
 
-const numToPick int = 15 // how many winners to pick
+//const numToPick int = 15 // how many winners to pick
 
 func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes

@@ -129,7 +129,10 @@ func loadStudents(file string) []Member {
 	csvReader.Comma = ','
 	csvReader.TrimLeadingSpace = true
 
-	csvReader.Read() //skip header
+	_, err = csvReader.Read() //skip header
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for {
 		rec, err := csvReader.Read()
