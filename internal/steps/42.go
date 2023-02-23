@@ -9,8 +9,6 @@ import (
 	"ethohampton.com/BallotCleaner/internal/util"
 )
 
-//TODO set correct index values
-
 const TALLY_SENATE_OPTIONS = 17 //index
 const TALLY_SENATE_WRITEINS = 18
 const TALLY_SFCATLARGE_OPTIONS = TALLY_SENATE_OPTIONS + TALLY_SENATE_WRITEINS + 1 //index
@@ -30,7 +28,6 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	var senate map[string]int = make(map[string]int)
 	var sfcAtLarge map[string]int = make(map[string]int)
 
-	//TODO confirm number of seats for each
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
 		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
@@ -40,11 +37,9 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	}
 	//log.Println("Counted Popularity Votes")
 
-	//TODO set correct names
 	//presidental ticket
-	presidentResults := util.RunIRV(votes, []string{"Calvin Anderman for President & Braeden Howard for Vice President", "Alexander Kerner for President & Isabella Griffiths for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(votes, []string{"Julia Hayes for President & Angelo Arredondo for Vice President", "Carissa O'Donnell for President & Dakota Canzano for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
-	//TODO set correct names
 	//SFC chair
 	sfcChairResults := util.RunIRV(votes, []string{"Matteo Paola", "Noa Stoll"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
