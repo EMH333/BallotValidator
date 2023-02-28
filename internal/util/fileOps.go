@@ -100,7 +100,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 		//make sure it is a complete row
 		if strings.ToUpper(rec[IMPORT_COMPLETE]) != "TRUE" {
-			log.Printf("Vote is not complete: %+v\n", rec)
+			//log.Printf("Vote is not complete: %+v\n", rec)
+			log.Printf("Vote is not complete from %s: %+v\n", rec[IMPORT_ONID], rec[0:IMPORT_COMPLETE+2])
 			incompleteVotes++
 			continue
 		}
