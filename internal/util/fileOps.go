@@ -271,8 +271,13 @@ func StoreAlreadyVoted(alreadyVoted []string, filename string) {
 	//sort the alreadyVoted slice
 	sort.Strings(alreadyVoted)
 
+	_, err = f.WriteString("First Name,Last Name,Email,ONID\n")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, record := range alreadyVoted {
-		_, err = f.WriteString(record + "\n")
+		_, err = f.WriteString("OSU,Student," + record + ",osustudent\n")
 		if err != nil {
 			log.Fatal(err)
 		}
