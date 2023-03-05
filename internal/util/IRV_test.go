@@ -1,6 +1,9 @@
 package util
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestCountIRVVotes(t *testing.T) {
 	ballots := []IRVBallot{
@@ -49,14 +52,27 @@ func TestOverallIRV(t *testing.T) {
 			{ID: "f", Raw: []string{"", "", "", "1", "e"}},
 			{ID: "g", Raw: []string{"1", "", "3", "", ""}},
 			{ID: "h", Raw: []string{"1", "1", "2", "3", "e"}}, // shouldn't be counted because of duplicate 1's
-			{ID: "i", Raw: []string{"1", "3", "2", "1", "e"}}, // shouldn't be counted because of duplicate 1's
-		}, candidates: []string{"a", "b", "c"}, winner: "a"},
+			{ID: "i", Raw: []string{"1", "3", "2", "2", "e"}}, // shouldn't be counted because of duplicate 2's
+		}, candidates: []string{"a", "b", "c"}, winner: "Winner: a with 3 votes which is 60.00% of the vote"},
+		{
+			// test that a tie is broken by the number of votes for the next choice
+			votes: []Vote{
+				{ID: "a", Raw: []string{"1", "2", "3", "", ""}},
+				{ID: "b", Raw: []string{"2", "1", "3", "", ""}},
+				{ID: "c", Raw: []string{"3", "2", "1", "", ""}},
+				{ID: "d", Raw: []string{"2", "", "", "1", "d"}},
+				{ID: "e", Raw: []string{"", "2", "", "1", "e"}},
+			},
+			candidates: []string{"a", "b", "c"},
+			// TODO this will change if we change the way we break last place ties
+			winner: "Winner: b with 3 votes which is 60.00% of the vote",
+		},
 	}
 
 	for _, tc := range testCases {
 		logMessages := RunIRV(tc.votes, tc.candidates, len(tc.candidates), 0)
-		if !Contains(&logMessages, "Winner: "+tc.winner+" with 3 votes which is 60.00% of the vote") {
-			t.Errorf("Expected winner %s, got %s", tc.winner, logMessages)
+		if !Contains(&logMessages, tc.winner) {
+			t.Errorf("Expected %s, got:\n%s\n\n", tc.winner, strings.Join(logMessages, "\n"))
 		}
 	}
 }
