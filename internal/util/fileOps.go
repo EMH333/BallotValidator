@@ -16,7 +16,6 @@ import (
 
 var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01")
 
-//TODO set correct import values
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
 const IMPORT_TYPE = 2
@@ -58,6 +57,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	csvReader.TrimLeadingSpace = true
 
 	var incompleteVotes int = 0
+	var outOfTimeVotes int = 0
 
 	for {
 		rec, err := csvReader.Read()
@@ -85,6 +85,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 
 		//make sure it is only reading the correct day
 		if timestamp.Before(validStartTime) || timestamp.After(validEndTime) {
+			//log.Printf("Response before or after valid times: %+v\n", rec)
+			outOfTimeVotes++
 			continue
 		}
 
@@ -116,6 +118,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	}
 
 	log.Printf("%d votes were incomplete, and not counted\n", incompleteVotes)
+	log.Printf("%d votes were out of time, and not counted\n", outOfTimeVotes)
 
 	return votes
 }
@@ -159,14 +162,17 @@ func LoadValidVoters(fileName string) []string {
 	return voters
 }
 
-func LoadAlreadyVoted(folderName string, upToDay int64) []string {
+func LoadAlreadyVoted(folder string, upToDay int64) []string {
 	var alreadyVoted []string
 
-	var folder = "data/" + folderName + "/"
+	//make sure folder ends with a slash
+	if !strings.HasSuffix(folder, "/") {
+		folder += "/"
+	}
 
 	_, err := os.Stat(folder)
 	if os.IsNotExist(err) {
-		log.Fatal("alreadyVoted doesn't exist within data")
+		log.Fatalf("%s doesn't exist", folder)
 	}
 
 	files, err := ioutil.ReadDir(folder)
@@ -175,7 +181,10 @@ func LoadAlreadyVoted(folderName string, upToDay int64) []string {
 	}
 
 	for _, file := range files {
-		fileDay, err := strconv.ParseInt(strings.Split(file.Name(), "-")[1], 10, 64) //expecting alreadyVoted-<day>-<endDay>.csv
+		// note we are grabbing the end date instead of the start date since that guarantees no overlap
+		// most files will have the same start and end, so this likely doesn't matter
+		//expecting alreadyVoted-<day>-<endDay>.csv
+		fileDay, err := strconv.ParseInt(strings.TrimSuffix(strings.Split(file.Name(), "-")[2], ".csv"), 10, 64)
 		if err != nil {
 			log.Fatalln("Already voted file name formated incorrectly", err)
 		}
@@ -185,16 +194,7 @@ func LoadAlreadyVoted(folderName string, upToDay int64) []string {
 			continue
 		}
 
-		file, err := os.Open(folder + file.Name())
-		if err != nil {
-			log.Fatalln("Error opening already voted file", err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			alreadyVoted = append(alreadyVoted, scanner.Text())
-		}
+		alreadyVoted = append(alreadyVoted, LoadStringArrayFile(folder+file.Name())...)
 	}
 
 	alreadyVoted = RemoveDuplicateStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)

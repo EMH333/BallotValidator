@@ -68,7 +68,7 @@ func main() {
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
-	alreadyVotedPrevious = util.LoadAlreadyVoted("alreadyVoted", int64(startDay))
+	alreadyVotedPrevious = util.LoadAlreadyVoted("data/alreadyVoted", int64(startDay))
 
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
 
