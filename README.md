@@ -1,12 +1,13 @@
 # BallotValidator
 
-This was designed specifically for the ASOSU 2022 election where data was ingested from Qualtrics. It was designed to clean the data and create a CSV file that can be used to determine the winners of the election.
+This was designed specifically for the ASOSU 2022 and 2023 election where data was ingested from Qualtrics. It was designed to validate the data and create a CSV file that can be used to determine the winners of the election.
 
-Namely it has four main steps to clean the data:
-1. Check against registrar data to see if the voter is registered as an ASOSU student (graduate or undergraduate at the Corvallis Campus)
+While I am confident that the program operates correctly, this is not a production ready system.
+
+Namely it has three main steps to validate the data:
+1. Check against registrar data to see if the voter is registered as an ASOSU student (a student at the Corvallis Campus)
 2. Check against previously submitted ballots to see if the voter has already submitted a ballot
-3. Check to make sure each voter voted for the correct House of Representatives candidates (either grad or undergrad)
-4. Select the winners for each incentive (daily, weekly and overall)
+3. Select the winners for incentives as required. (Note: because of last year, this is still titled step 4)
 
 ## Command Line Usage
 
@@ -20,9 +21,9 @@ Namely it has four main steps to clean the data:
 
 This program expects a folder named `data` containing the following files:
 - `seed.txt` - a single line of text containing the seed for the random number generator used to select the winners
-- `validVoters.csv` - a CSV file containing the valid voters in the form of `FIRST_NAME LAST_NAME	OSU_EMAIL	ONID_ID	G_UG_STATUS` (separated by tabs)
+- `validVoters.csv` - a CSV file containing the valid voters in the form of `FIRST_NAME,LAST_NAME,OSU_EMAIL,ONID_ID`
 - `ballots` - a folder containing all the ballots submitted by the voters. It is expected that the files contain data for the day listed as well as all days prior. The format is too long to document here and must be customized for each election/ballot.
-- `alreadyVoted` - a folder containing files in the form of `whatever-<days_since_epoch>-whatever.csv` which lists all the voters who have already voted on a given day. This data is deduped so there is no harm in having overlapping data. One ONID per line
+- `alreadyVoted` - a folder containing files in the form of `whatever-<data_start_day>-<data_end_day>.csv` which lists all the voters who have already voted on a given day. This data is deduped so there is no harm in having overlapping data. One ONID per line
 
 ## Output
 
