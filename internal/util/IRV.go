@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -24,8 +25,6 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		return []string{"No votes cast"}
 	}
 
-	//TODO calculate majority per round, not just the first round
-	var majority int = (len(votes) / 2) + 1
 	var logMessages []string
 
 	//first process into ballots
@@ -40,10 +39,12 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		logMessages = append(logMessages, "Round "+strconv.Itoa(roundNumber))
 		//count up the votes for each candidate
 		candidateVotes, ballotsCountedThisRound := countIRVVotes(&ballots)
+		var majority int = (ballotsCountedThisRound / 2) + 1 // as per statute, the majority is based on the number of votes cast in the round, not overall
+
 		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound))
 		logMessages = append(logMessages, "----------------------------------------------------")
 
-		//copy candidateVotes to a new map so we can delete entries
+		//copy candidateVotes to a new map so we can delete entries as we print them
 		var candidateVotesCopy map[string]int = make(map[string]int)
 		for candidate, votes := range candidateVotes {
 			candidateVotesCopy[candidate] = votes
@@ -69,12 +70,17 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 		for candidate, votes := range candidateVotes {
 			//if someone has over the majority of the vote then they are the winner
 			if votes >= majority || len(candidateVotes) <= 1 {
+				// a check here, since only one candidate should ever have a majority of the votes
+				if winner != "" {
+					log.Fatal("Multiple candidates have a majority of the votes in a single round. This should never happen.")
+				}
+
 				winner = candidate
 			}
 		}
 
 		if winner != "" {
-			logMessages = append(logMessages, "", "Winner: "+winner+" with "+strconv.Itoa(candidateVotes[winner])+" votes"+" which is "+strconv.FormatFloat(float64(candidateVotes[winner]*100)/float64(len(votes)), 'f', 2, 64)+"% of the vote")
+			logMessages = append(logMessages, "", "Winner: "+winner+" with "+strconv.Itoa(candidateVotes[winner])+" votes"+" which is "+strconv.FormatFloat(float64(candidateVotes[winner]*100)/float64(ballotsCountedThisRound), 'f', 2, 64)+"% of the vote")
 			break
 		}
 

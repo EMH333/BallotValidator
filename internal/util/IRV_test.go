@@ -55,7 +55,7 @@ func TestOverallIRV(t *testing.T) {
 
 	for _, tc := range testCases {
 		logMessages := RunIRV(tc.votes, tc.candidates, len(tc.candidates), 0)
-		if !Contains(&logMessages, "Winner: "+tc.winner+" with 5 votes which is 55.56% of the vote") {
+		if !Contains(&logMessages, "Winner: "+tc.winner+" with 3 votes which is 60.00% of the vote") {
 			t.Errorf("Expected winner %s, got %s", tc.winner, logMessages)
 		}
 	}
