@@ -37,5 +37,11 @@ func CleanVote(vote string) string {
 	//TODO add subsitution for valid but ill-formed entrys
 	//both should happen after the trim/upper
 
+	// fix spelling error for real person
+	vote = strings.ReplaceAll(vote, "CAROYLN PEARCE", "CAROLYN PEARCE")
+
+	// an actual candidate for sfc at large, so dedupe those votes
+	vote = strings.ReplaceAll(vote, "SOPHIA NOWERS", "Sophia Nowers")
+
 	return vote
 }
