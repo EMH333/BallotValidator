@@ -260,6 +260,7 @@ func StoreSummary(summary Summary, filename string) {
 	}
 }
 
+// simple store list of onids
 func StoreAlreadyVoted(alreadyVoted []string, filename string) {
 	f, err := os.Create("output/" + filename)
 	if err != nil {
@@ -271,12 +272,32 @@ func StoreAlreadyVoted(alreadyVoted []string, filename string) {
 	//sort the alreadyVoted slice
 	sort.Strings(alreadyVoted)
 
+	for _, record := range alreadyVoted {
+		_, err = f.WriteString(record + "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+// store in similar format to valid voters, but with fake data other than the onid email
+func StoreNotYetVoted(notYetVoted []string, filename string) {
+	f, err := os.Create("output/" + filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// remember to close the file
+	defer f.Close()
+
+	//sort the notYetVoted slice
+	sort.Strings(notYetVoted)
+
 	_, err = f.WriteString("First Name,Last Name,Email,ONID\n")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, record := range alreadyVoted {
+	for _, record := range notYetVoted {
 		_, err = f.WriteString("OSU,Student," + record + ",osustudent\n")
 		if err != nil {
 			log.Fatal(err)
