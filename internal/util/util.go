@@ -45,5 +45,8 @@ func CleanVote(vote string) string {
 	vote = strings.ReplaceAll(vote, "ABUKAR MOHAMMED", "Abukar Mohamed")
 	vote = strings.ReplaceAll(vote, "COLE PETERS", "Cole Peters")
 
+	//for senate
+	vote = strings.ReplaceAll(vote, "CONNOR ROBERTS", "Connor Roberts")
+
 	return vote
 }
