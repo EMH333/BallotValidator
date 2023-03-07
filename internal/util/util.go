@@ -40,8 +40,10 @@ func CleanVote(vote string) string {
 	// fix spelling error for real person
 	vote = strings.ReplaceAll(vote, "CAROYLN PEARCE", "CAROLYN PEARCE")
 
-	// an actual candidate for sfc at large, so dedupe those votes
+	// actual candidates for sfc at large, so dedupe those votes
 	vote = strings.ReplaceAll(vote, "SOPHIA NOWERS", "Sophia Nowers")
+	vote = strings.ReplaceAll(vote, "ABUKAR MOHAMMED", "Abukar Mohamed")
+	vote = strings.ReplaceAll(vote, "COLE PETERS", "Cole Peters")
 
 	return vote
 }
