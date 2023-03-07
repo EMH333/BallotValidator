@@ -14,7 +14,7 @@ var validVoters []string
 
 var alreadyVotedPrevious []string
 
-//const numToPick int = 15 // how many winners to pick
+const numToPick int = 10 // how many winners to pick
 
 func main() {
 	var startDay int64 = 0      // what day are we starting on to process votes
@@ -53,7 +53,7 @@ func main() {
 	var dayToDayFormat = fmt.Sprint(startDay) + "-" + fmt.Sprint(endDay)
 
 	//"random" seed so winners are deterministic
-	//var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
+	var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
@@ -99,14 +99,14 @@ func main() {
 	log.Println("Step 2: Valid votes:", twoSummary.Valid)
 
 	// step four: Incentives
-	// log.Println()
-	// log.Println("Step 4: Incentives")
-	// postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostTwo, seed, numToPick)
-	// util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
-	// util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
-	// util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
-	// log.Println("Step 4: Valid votes:", twoSummary.Valid)
-	// log.Println("Step 4: Selected winners:", len(winners))
+	log.Println()
+	log.Println("Step 4: Incentives")
+	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostTwo, seed, numToPick)
+	util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
+	util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
+	util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
+	log.Println("Step 4: Valid votes:", twoSummary.Valid)
+	log.Println("Step 4: Selected winners:", len(winners))
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
