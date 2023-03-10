@@ -16,6 +16,8 @@ import (
 
 var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01", time.Local)
 
+const BALLOT_TIME_FORMAT = "2006-01-02 15:04:05"
+
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
 const IMPORT_TYPE = 2
@@ -77,7 +79,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 			continue
 		}
 
-		timestamp, err := time.ParseInLocation("2006-01-02 15:04:05", rec[IMPORT_TIMESTAMP], time.Local) //"1/2/2006 15:04" //2/14/2022 9:10
+		timestamp, err := time.ParseInLocation(BALLOT_TIME_FORMAT, rec[IMPORT_TIMESTAMP], time.Local) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
 		}
