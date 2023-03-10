@@ -109,7 +109,7 @@ func main() {
 	sort.Strings(output)
 
 	//write to file
-	util.StoreAlreadyVoted(output, "graduate-info.csv")
+	util.StoreStringArrayFile(output, "graduate-info.csv")
 
 }
 

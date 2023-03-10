@@ -94,7 +94,7 @@ func main() {
 	util.StoreVotes(validPostTwo, "2-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostTwo, "2-invalid-"+dayToDayFormat+".csv")
 	util.StoreSummary(twoSummary, "2-summary-"+dayToDayFormat+".txt")
-	util.StoreAlreadyVoted(alreadyVotedToday, "alreadyVoted-"+dayToDayFormat+".csv")
+	util.StoreStringArrayFile(alreadyVotedToday, "alreadyVoted-"+dayToDayFormat+".csv")
 	log.Println("Step 2: Invalid votes:", twoSummary.Invalid)
 	log.Println("Step 2: Valid votes:", twoSummary.Valid)
 
@@ -104,7 +104,7 @@ func main() {
 	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostTwo, seed, numToPick)
 	util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
 	util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
-	util.StoreAlreadyVoted(winners, "incentive-winners-"+dayToDayFormat+".csv")
+	util.StoreStringArrayFile(winners, "incentive-winners-"+dayToDayFormat+".csv")
 	log.Println("Step 4: Valid votes:", twoSummary.Valid)
 	log.Println("Step 4: Selected winners:", len(winners))
 

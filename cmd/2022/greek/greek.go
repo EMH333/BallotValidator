@@ -97,8 +97,8 @@ func main() {
 	sort.Strings(outputSmall)
 
 	//write to file
-	util.StoreAlreadyVoted(outputLarge, "greek-info-large.csv")
-	util.StoreAlreadyVoted(outputSmall, "greek-info-small.csv")
+	util.StoreStringArrayFile(outputLarge, "greek-info-large.csv")
+	util.StoreStringArrayFile(outputSmall, "greek-info-small.csv")
 
 }
 

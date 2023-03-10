@@ -260,7 +260,7 @@ func StoreSummary(summary Summary, filename string) {
 }
 
 // simple store list of onids
-func StoreAlreadyVoted(alreadyVoted []string, filename string) {
+func StoreStringArrayFile(alreadyVoted []string, filename string) {
 	f, err := os.Create("output/" + filename)
 	if err != nil {
 		log.Fatal(err)
