@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var EPOCH, epochErr = time.Parse("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01")
+var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01", time.Local)
 
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
@@ -32,9 +32,8 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 	var validStartTime = EPOCH.Add(time.Duration(startDay) * 24 * time.Hour)
 	var validEndTime = EPOCH.Add(time.Duration(endDay+1) * 24 * time.Hour) // add one day to end day
 
-	//TODO verify this is correct
 	if endDay == 18 {
-		newEndTime, err := time.Parse("2006-Jan-02 15:04:05", "2023-Mar-10 17:00:59")
+		newEndTime, err := time.ParseInLocation("2006-Jan-02 15:04:05", "2023-Mar-10 12:00:00", time.Local)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -78,7 +77,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 			continue
 		}
 
-		timestamp, err := time.Parse("2006-01-02 15:04:05", rec[IMPORT_TIMESTAMP]) //"1/2/2006 15:04" //2/14/2022 9:10
+		timestamp, err := time.ParseInLocation("2006-01-02 15:04:05", rec[IMPORT_TIMESTAMP], time.Local) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
 		}
