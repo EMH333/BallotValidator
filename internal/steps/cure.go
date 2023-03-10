@@ -22,6 +22,7 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 	var BEFORE_TIME_CURE = time.Date(2023, time.February, 20, 17, 32, 0, 0, time.Local)
 
 	var curedBallotSummary []string
+	var ballotsBeforeTime = 0
 
 	//find all voters who started voting in the first 31 minutes the poll was open and voted for 6 senators
 	//if they have voted more than once, then remove their first vote so that they can vote again and have all 18 senate options avaliable
@@ -34,6 +35,7 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 
 		//only check for people who started voting before the cure time
 		if t.Before(BEFORE_TIME_CURE) {
+			ballotsBeforeTime++
 			//now we need to check for 6 senate votes
 			var senateEntry = v.Raw[TALLY_SENATE_OPTIONS]
 			var senateVotes = strings.Split(senateEntry, ",")
@@ -55,6 +57,8 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 			validVotes = append(validVotes, v)
 		}
 	}
+
+	log.Println("Cure step ballots before time:", ballotsBeforeTime)
 
 	if len(curedBallotSummary) > MAX_POTENTIAL_CURED_BALLOTS || len(invalidVotes) > MAX_POTENTIAL_CURED_BALLOTS {
 		log.Fatal("Cure step invalid count ", len(curedBallotSummary), len(invalidVotes))

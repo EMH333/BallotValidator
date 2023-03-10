@@ -78,21 +78,21 @@ func main() {
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	//curing due to error in first 31 minutes
-	log.Println()
-	log.Println("Step Cure")
-	validPostCure, invalidPostCure, curedBallotsCSV, cureSummary := steps.StepCure(votes)
-	util.StoreVotes(validPostCure, "c-valid-"+dayToDayFormat+".csv")
-	util.StoreVotes(invalidPostCure, "c-invalid-"+dayToDayFormat+".csv")
-	util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
-	util.StoreStringArrayFile(curedBallotsCSV, "curedBallots-"+dayToDayFormat+".csv")
-	log.Println("Step c: Cured votes:", cureSummary.Invalid)
-	log.Println("Step c: Valid votes:", cureSummary.Valid)
-	log.Println("Step c: Potential Cured votes:", len(curedBallotsCSV))
+	// log.Println()
+	// log.Println("Step Cure")
+	// validPostCure, invalidPostCure, curedBallotsCSV, cureSummary := steps.StepCure(votes)
+	// util.StoreVotes(validPostCure, "c-valid-"+dayToDayFormat+".csv")
+	// util.StoreVotes(invalidPostCure, "c-invalid-"+dayToDayFormat+".csv")
+	// util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
+	// util.StoreStringArrayFile(curedBallotsCSV, "curedBallots-"+dayToDayFormat+".csv")
+	// log.Println("Step c: Cured votes:", cureSummary.Invalid)
+	// log.Println("Step c: Valid votes:", cureSummary.Valid)
+	// log.Println("Step c: Potential Cured votes:", len(curedBallotsCSV))
 
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := steps.StepOne(validPostCure, &validVoters)
+	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVoters) //validPostCure
 	util.StoreVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
 	util.StoreSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")

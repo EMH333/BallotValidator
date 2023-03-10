@@ -50,6 +50,7 @@ func TestStepCure(t *testing.T) {
 				"1,yes",
 			},
 		},
+		//TODO add more tests here
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
