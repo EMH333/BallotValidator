@@ -10,9 +10,10 @@ import (
 
 const START_TIME_INDEX = 0
 const MAX_POTENTIAL_CURED_BALLOTS = 45 //this is based on previous analysis of start times and senate vote counts. Should never exceed this
+const SENATE_VOTES_ONID_INDEX = 36
 
 //returns valid, invaild, cured ballot summary and summary
-func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summary) {
+func StepCure(votes []util.Vote, senateVotesFile string) ([]util.Vote, []util.Vote, []string, util.Summary) {
 	var initialSize int = len(votes)
 
 	var logMessages []string
@@ -24,8 +25,11 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 	var curedBallotSummary []string
 	var ballotsBeforeTime = 0
 
+	// load senate votes
+	newSenateVotes := util.LoadVotesCSV(senateVotesFile, 0, 100, SENATE_VOTES_ONID_INDEX)
+
 	//find all voters who started voting in the first 31 minutes the poll was open and voted for 6 senators
-	//if they have voted more than once, then remove their first vote so that they can vote again and have all 18 senate options avaliable
+	//see if they have voted using the new senator ballot, and if so, replace their old senate ballot with the new one
 
 	for _, v := range votes {
 		t, err := time.ParseInLocation(util.BALLOT_TIME_FORMAT, v.Raw[START_TIME_INDEX], time.Local)
@@ -33,22 +37,37 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 			log.Fatal(err)
 		}
 
+		// make sure we don't overwrite sfc votes
+		sfcVote := v.Raw[TALLY_SFCATLARGE_OPTIONS]
+
 		//only check for people who started voting before the cure time
 		if t.Before(BEFORE_TIME_CURE) {
-			ballotsBeforeTime++
 			//now we need to check for 6 senate votes
-			var senateEntry = v.Raw[TALLY_SENATE_OPTIONS]
-			var senateVotes = strings.Split(senateEntry, ",")
-			if len(senateVotes) == 6 {
-				//now we need to check if they have voted more than once
-				if votedMoreThanOnce(votes, v.ONID) {
-					//if they have voted more than once, then remove their first vote so that they can vote again and have all 18 senate options avaliable
+			var originalSenateEntry = v.Raw[TALLY_SENATE_OPTIONS]
+			var originalSenateVotes = strings.Split(originalSenateEntry, ",")
+			if len(originalSenateVotes) == 6 {
+				ballotsBeforeTime++
+				//now we replace their old senate ballot with the new one if it exists
+				if indexOfVote(newSenateVotes, v.ONID) != -1 {
+					//if they voted with new senate ballot, then replace their old senate choices with their new ones
 					invalidVotes = append(invalidVotes, v)
-					logMessages = append(logMessages, "Initial vote from "+v.ONID+" with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" removed because they voted again")
-					curedBallotSummary = append(curedBallotSummary, v.ONID+",yes") //did remove from list because they voted more than once, so count the next one
+					logMessages = append(logMessages, "Initial vote from "+v.ONID+" with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" replaced because they voted with the new senate ballot")
+					curedBallotSummary = append(curedBallotSummary, v.ONID+",yes") //did change because they voted in the senate ballot
+
+					//now we need to replace their old senate ballot with the new one
+					//TODO do for all the write-ins as well
+					//v.Raw[TALLY_SENATE_OPTIONS] = newSenateVotes[indexOfVote(newSenateVotes, v.ONID)].Raw[TALLY_SENATE_OPTIONS]
+					for i := TALLY_SENATE_OPTIONS; i <= TALLY_SENATE_WRITEINS; i++ {
+						v.Raw[i] = newSenateVotes[indexOfVote(newSenateVotes, v.ONID)].Raw[i]
+					}
+					validVotes = append(validVotes, v)
+
+					if v.Raw[TALLY_SFCATLARGE_OPTIONS] != sfcVote {
+						log.Fatal("SFC vote changed")
+					}
 				} else {
 					validVotes = append(validVotes, v)
-					curedBallotSummary = append(curedBallotSummary, v.ONID+",no") //did not remove from list because they voted only once
+					curedBallotSummary = append(curedBallotSummary, v.ONID+",no") //did not change because they did't vote in the senate ballot
 				}
 			} else {
 				validVotes = append(validVotes, v)
@@ -58,13 +77,14 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 		}
 	}
 
-	log.Println("Cure step ballots before time:", ballotsBeforeTime)
+	log.Println("Cure step ballots before time and 6 votes:", ballotsBeforeTime)
+	log.Println("New senate votes:", len(newSenateVotes))
 
 	if len(curedBallotSummary) > MAX_POTENTIAL_CURED_BALLOTS || len(invalidVotes) > MAX_POTENTIAL_CURED_BALLOTS {
 		log.Fatal("Cure step invalid count ", len(curedBallotSummary), len(invalidVotes))
 	}
 
-	if len(validVotes)+len(invalidVotes) != initialSize {
+	if len(validVotes) != initialSize {
 		log.Fatal("Cure step vote counts don't match")
 	}
 
@@ -76,12 +96,11 @@ func StepCure(votes []util.Vote) ([]util.Vote, []util.Vote, []string, util.Summa
 		Log:       logMessages}
 }
 
-func votedMoreThanOnce(votes []util.Vote, onid string) bool {
-	var count int = 0
-	for _, v := range votes {
+func indexOfVote(votes []util.Vote, onid string) int {
+	for i, v := range votes {
 		if v.ONID == onid {
-			count++
+			return i
 		}
 	}
-	return count > 1
+	return -1
 }

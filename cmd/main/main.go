@@ -77,22 +77,24 @@ func main() {
 	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay, util.IMPORT_ONID)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
+	util.StoreVotes(votes, "original-"+dayToDayFormat+".csv")
+
 	//curing due to error in first 31 minutes
-	// log.Println()
-	// log.Println("Step Cure")
-	// validPostCure, invalidPostCure, curedBallotsCSV, cureSummary := steps.StepCure(votes)
-	// util.StoreVotes(validPostCure, "c-valid-"+dayToDayFormat+".csv")
-	// util.StoreVotes(invalidPostCure, "c-invalid-"+dayToDayFormat+".csv")
-	// util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
-	// util.StoreStringArrayFile(curedBallotsCSV, "curedBallots-"+dayToDayFormat+".csv")
-	// log.Println("Step c: Cured votes:", cureSummary.Invalid)
-	// log.Println("Step c: Valid votes:", cureSummary.Valid)
-	// log.Println("Step c: Potential Cured votes:", len(curedBallotsCSV))
+	log.Println()
+	log.Println("Step Cure")
+	validPostCure, invalidPostCure, curedBallotsCSV, cureSummary := steps.StepCure(votes, "data/senateBallots.csv")
+	util.StoreVotes(validPostCure, "c-replaced-"+dayToDayFormat+".csv")
+	util.StoreVotes(invalidPostCure, "c-original-"+dayToDayFormat+".csv")
+	util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
+	util.StoreStringArrayFile(curedBallotsCSV, "curedBallots-"+dayToDayFormat+".csv")
+	log.Println("Step c: Potential Cured votes:", len(curedBallotsCSV))
+	log.Println("Step c: Replaced votes:", cureSummary.Invalid)
+	log.Println("Step c: Valid votes:", cureSummary.Valid)
 
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVoters) //validPostCure
+	validPostOne, invalidPostOne, oneSummary := steps.StepOne(validPostCure, &validVoters) //votes//validPostCure
 	util.StoreVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
 	util.StoreSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
