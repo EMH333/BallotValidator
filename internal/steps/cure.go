@@ -30,7 +30,6 @@ func StepCure(votes []util.Vote, senateVotesFile string) ([]util.Vote, []util.Vo
 
 	//find all voters who started voting in the first 31 minutes the poll was open and voted for 6 senators
 	//see if they have voted using the new senator ballot, and if so, replace their old senate ballot with the new one
-
 	for _, v := range votes {
 		t, err := time.ParseInLocation(util.BALLOT_TIME_FORMAT, v.Raw[START_TIME_INDEX], time.Local)
 		if err != nil {
@@ -55,13 +54,12 @@ func StepCure(votes []util.Vote, senateVotesFile string) ([]util.Vote, []util.Vo
 					curedBallotSummary = append(curedBallotSummary, v.ONID+",yes") //did change because they voted in the senate ballot
 
 					//now we need to replace their old senate ballot with the new one
-					//TODO do for all the write-ins as well
-					//v.Raw[TALLY_SENATE_OPTIONS] = newSenateVotes[indexOfVote(newSenateVotes, v.ONID)].Raw[TALLY_SENATE_OPTIONS]
 					for i := TALLY_SENATE_OPTIONS; i <= TALLY_SENATE_WRITEINS; i++ {
 						v.Raw[i] = newSenateVotes[indexOfVote(newSenateVotes, v.ONID)].Raw[i]
 					}
 					validVotes = append(validVotes, v)
 
+					//make sure we didn't change their sfc vote
 					if v.Raw[TALLY_SFCATLARGE_OPTIONS] != sfcVote {
 						log.Fatal("SFC vote changed")
 					}
@@ -82,6 +80,10 @@ func StepCure(votes []util.Vote, senateVotesFile string) ([]util.Vote, []util.Vo
 
 	if len(curedBallotSummary) > MAX_POTENTIAL_CURED_BALLOTS || len(invalidVotes) > MAX_POTENTIAL_CURED_BALLOTS {
 		log.Fatal("Cure step invalid count ", len(curedBallotSummary), len(invalidVotes))
+	}
+
+	if len(invalidVotes) != len(newSenateVotes) {
+		log.Fatal("Cure step count doesn't match new senate votes")
 	}
 
 	if len(validVotes) != initialSize {
