@@ -74,7 +74,7 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay)
+	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay, util.IMPORT_ONID)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 
 	//curing due to error in first 31 minutes

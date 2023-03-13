@@ -37,7 +37,7 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := util.LoadVotesCSV("data/ballots/"+ballotFile, START, END)
+	votes := util.LoadVotesCSV("data/ballots/"+ballotFile, START, END, util.IMPORT_ONID)
 	log.Printf("%d votes loaded\n", len(votes))
 
 	// reuse step two to get the ONID emails for all eligible students that have already voted

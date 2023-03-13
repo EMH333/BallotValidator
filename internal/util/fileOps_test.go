@@ -130,9 +130,10 @@ func TestLoadAlreadyVoted(t *testing.T) {
 
 func TestLoadVotesCSV(t *testing.T) {
 	type args struct {
-		fileName string
-		startDay int64
-		endDay   int64
+		fileName  string
+		startDay  int64
+		endDay    int64
+		ONIDIndex int64
 	}
 	tests := []struct {
 		name string
@@ -143,7 +144,7 @@ func TestLoadVotesCSV(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadVotesCSV(tt.args.fileName, tt.args.startDay, tt.args.endDay); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadVotesCSV(tt.args.fileName, tt.args.startDay, tt.args.endDay, tt.args.ONIDIndex); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadVotesCSV() = %v, want %v", got, tt.want)
 			}
 		})

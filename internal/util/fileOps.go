@@ -25,7 +25,8 @@ const IMPORT_ONID = 50
 const IMPORT_COMPLETE = 6
 const IMPORT_ID = 8
 
-func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
+// TODO use this to also load new votes csv (add ONID and logging options)
+func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 	// make sure our epoch is valid
 	if epochErr != nil {
 		log.Fatal(epochErr)
@@ -91,7 +92,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 			continue
 		}
 
-		ONID := rec[IMPORT_ONID]
+		ONID := rec[ONIDIndex]
 		//sanity check to make sure the ONID looks like an email
 		if !strings.Contains(ONID, "@oregonstate.edu") {
 			log.Fatalf("ONID is not an email address: %s\n", ONID)
@@ -104,7 +105,7 @@ func LoadVotesCSV(fileName string, startDay, endDay int64) []Vote {
 		//make sure it is a complete row
 		if strings.ToUpper(rec[IMPORT_COMPLETE]) != "TRUE" {
 			//log.Printf("Vote is not complete: %+v\n", rec)
-			log.Printf("Vote is not complete from %s: %+v\n", rec[IMPORT_ONID], rec[0:IMPORT_COMPLETE+2])
+			log.Printf("Vote is not complete from %s: %+v\n", rec[ONIDIndex], rec[0:IMPORT_COMPLETE+2])
 			incompleteVotes++
 			continue
 		}
