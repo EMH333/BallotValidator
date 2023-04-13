@@ -96,7 +96,7 @@ func main() {
 }
 
 func loadMembers(file string) []Member {
-	reg, err := regexp.Compile(`\b(Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega|Farmhouse|Acacia)`)
+	reg, err := regexp.Compile(`\b(Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega|Fiji|Farmhouse|Acacia|AEPi|DTD|KDChi|SDO|Sig)`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,6 +142,10 @@ func loadMembers(file string) []Member {
 		if finalOrg == "" {
 			log.Println("No organization found for:", org)
 			continue
+		}
+
+		if finalOrg == "Pi" {
+			log.Println("Pi found for:", org)
 		}
 
 		members = append(members, Member{ONID: rec[2], Organization: finalOrg})
