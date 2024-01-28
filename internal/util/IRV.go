@@ -183,7 +183,8 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 				//if rank doesn't parse, then they left it blank
 				rank, err := strconv.ParseInt(vote.Raw[i], 10, 64)
 				if err != nil {
-					//logMessages = append(logMessages, "Invalid rank from "+vote.Raw[i]+" for "+vote.ID)
+					logMessages = append(logMessages, "Invalid rank from "+vote.Raw[i]+" for "+vote.ID)
+					validBallot = false
 					continue
 				}
 
@@ -199,18 +200,22 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 		}
 
 		// handle write-in
-		rank, err := strconv.ParseInt(vote.Raw[offset+numCandidates], 10, 64)
-		//if rank doesn't parse, then they left it blank
-		if err != nil {
-			//logMessages = append(logMessages, "Invalid rank from "+vote.Raw[offset+numCandidates]+" for "+vote.ID)
-		} else {
-			//check to make sure we aren't overriding a value
-			if ballot.Choices[rank-1] != "" {
-				logMessages = append(logMessages, "Error: "+vote.ID+" tried to override "+ballot.Choices[rank-1]+" with "+vote.Raw[offset+numCandidates+1])
+		writeinRank := vote.Raw[offset+numCandidates]
+		if writeinRank != "" {
+			rank, err := strconv.ParseInt(writeinRank, 10, 64)
+			if err != nil {
+				logMessages = append(logMessages, "Invalid rank from "+vote.Raw[offset+numCandidates]+" for "+vote.ID)
 				validBallot = false
+			} else {
+				//check to make sure we aren't overriding a value
+				if ballot.Choices[rank-1] != "" {
+					logMessages = append(logMessages, "Error: "+vote.ID+" tried to override "+ballot.Choices[rank-1]+" with "+vote.Raw[offset+numCandidates+1])
+					validBallot = false
+				}
+
+				writeInName := CleanVote(vote.Raw[offset+numCandidates+1])
+				ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 			}
-			writeInName := CleanVote(vote.Raw[offset+numCandidates+1])
-			ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 		}
 
 		if validBallot {

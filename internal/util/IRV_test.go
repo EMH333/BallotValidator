@@ -68,6 +68,12 @@ func TestOverallIRV(t *testing.T) {
 			// TODO this will change if we change the way we break last place ties
 			winner: "Winner: b with 3 votes which is 60.00% of the vote",
 		},
+		{
+			// no votes
+			votes:      []Vote{},
+			candidates: []string{"a", "b", "c"},
+			winner:     "No votes cast",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -87,8 +93,10 @@ func TestCreateIRVBallots(t *testing.T) {
 		{ID: "e", Raw: []string{"", "", "", "", ""}},
 		{ID: "f", Raw: []string{"", "", "", "1", "e"}},
 		{ID: "g", Raw: []string{"1", "", "3", "", ""}},
-		{ID: "h", Raw: []string{"1", "1", "2", "3", "e"}},
-		{ID: "i", Raw: []string{"1", "3", "2", "2", "e"}},
+		{ID: "h", Raw: []string{"1", "1", "2", "3", "e"}}, // overwrite of a with b
+		{ID: "i", Raw: []string{"1", "3", "2", "2", "e"}}, // overwrite of c with e
+		{ID: "j", Raw: []string{"1", "3", "2", "k", "e"}}, // invalid write-in rank
+		{ID: "k", Raw: []string{"1", "o", "2", "3", "e"}}, // invalid included rank
 	}
 
 	includedCandidates := []string{"a", "b", "c"}
@@ -110,6 +118,10 @@ func TestCreateIRVBallots(t *testing.T) {
 		"Invalid ballot: h",
 		"Error: i tried to override c with e",
 		"Invalid ballot: i",
+		"Invalid rank from k for j",
+		"Invalid ballot: j",
+		"Invalid rank from o for k",
+		"Invalid ballot: k",
 	}
 
 	ballots, logMessages := createIRVBallots(&votes, includedCandidates, numCandidates, offset)
