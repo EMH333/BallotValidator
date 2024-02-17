@@ -6,6 +6,7 @@ import (
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
+//TODO refactor to use step 42 values
 //start includes first time to remove
 //end is first item after the ones to remove
 const THREE_START = 31
