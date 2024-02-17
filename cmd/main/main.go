@@ -10,7 +10,9 @@ import (
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
-var validVoters []string
+var validVotersGraduate []string
+var validVotersUndergrad []string
+var validVotersUndefined []string
 
 var alreadyVotedPrevious []string
 
@@ -62,39 +64,28 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVoters = util.LoadValidVoters("data/validVoters.csv")
-
-	log.Printf("There are %d valid student voters\n", len(validVoters))
+	validVotersGraduate = util.LoadValidVoters("data/validVoters.csv", "G")
+	validVotersUndergrad = util.LoadValidVoters("data/validVoters.csv", "UG")
+	validVotersUndefined = util.LoadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
+	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
+	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
+	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
 	alreadyVotedPrevious = util.LoadAlreadyVoted("data/alreadyVoted", int64(startDay))
-
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
 
 	// Load the votes
 	log.Println("Loading votes...")
 	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay, util.IMPORT_ONID)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
-
 	util.StoreVotes(votes, "original-"+dayToDayFormat+".csv")
-
-	//curing due to error in first 31 minutes
-	// log.Println()
-	// log.Println("Step Cure")
-	// validPostCure, invalidPostCure, curedBallotsCSV, cureSummary := steps.StepCure(votes, "data/senateBallots.csv")
-	// util.StoreVotes(validPostCure, "c-replaced-"+dayToDayFormat+".csv")
-	// util.StoreVotes(invalidPostCure, "c-original-"+dayToDayFormat+".csv")
-	// util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
-	// util.StoreStringArrayFile(curedBallotsCSV, "curedBallots-"+dayToDayFormat+".csv")
-	// log.Println("Step c: Potential Cured votes:", len(curedBallotsCSV))
-	// log.Println("Step c: Replaced votes:", cureSummary.Invalid)
-	// log.Println("Step c: Valid votes:", cureSummary.Valid)
 
 	// step one: valid voter
 	log.Println()
 	log.Println("Step 1: Valid voter")
-	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVoters) //votes//validPostCure
+	validPostOne, invalidPostOne, oneSummary := steps.StepOne(votes, &validVotersGraduate, &validVotersUndergrad, &validVotersUndefined)
 	util.StoreVotes(validPostOne, "1-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostOne, "1-invalid-"+dayToDayFormat+".csv")
 	util.StoreSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
@@ -112,10 +103,20 @@ func main() {
 	log.Println("Step 2: Invalid votes:", twoSummary.Invalid)
 	log.Println("Step 2: Valid votes:", twoSummary.Valid)
 
+	// step three: grad/undergrad
+	log.Println()
+	log.Println("Step 3: Grad/undergrad")
+	validPostThree, invalidPostThree, threeSummary := steps.StepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
+	util.StoreVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
+	util.StoreVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
+	util.StoreSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
+	log.Println("Step 3: Modified votes:", threeSummary.Invalid)
+	log.Println("Step 3: Valid votes:", threeSummary.Valid)
+
 	// step four: Incentives
 	log.Println()
 	log.Println("Step 4: Incentives")
-	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostTwo, seed, numToPick)
+	postFour, winners, fourSummary := steps.StepFour(alreadyVotedPrevious, validPostThree, seed, numToPick)
 	util.StoreVotes(postFour, "4-valid-"+dayToDayFormat+".csv")
 	util.StoreSummary(fourSummary, "4-summary-"+dayToDayFormat+".txt")
 	util.StoreStringArrayFile(winners, "incentive-winners-"+dayToDayFormat+".csv")

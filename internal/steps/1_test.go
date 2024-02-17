@@ -8,7 +8,9 @@ import (
 )
 
 func TestStepOne(t *testing.T) {
-	var validVoters []string = []string{"123", "456", "789", "012", "345", "678"}
+	var validVotersGraduate []string = []string{"123", "456"}
+	var validVotersUndergraduate []string = []string{"789", "012"}
+	var validVotersUndefined []string = []string{"345", "678"}
 
 	var votes []util.Vote = []util.Vote{
 		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "123", ID: ""},
@@ -20,7 +22,7 @@ func TestStepOne(t *testing.T) {
 		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "345", ID: ""},
 	}
 
-	valid, invalid, _ := StepOne(votes, &validVoters)
+	valid, invalid, _ := StepOne(votes, &validVotersGraduate, &validVotersUndergraduate, &validVotersUndefined)
 
 	if len(valid)+len(invalid) != len(votes) {
 		t.Error("Total vote counts don't match")

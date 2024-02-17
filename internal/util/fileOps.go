@@ -126,8 +126,9 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 }
 
 const VALID_ONID_EMAIL = 2
+const VALID_STATUS = 4 //G_UG_STATUS TODO
 
-func LoadValidVoters(fileName string) []string {
+func LoadValidVoters(fileName string, indicator string) []string {
 	var voters []string
 
 	//open csv file
@@ -157,7 +158,10 @@ func LoadValidVoters(fileName string) []string {
 			log.Fatal(err)
 		}
 
-		voters = append(voters, rec[VALID_ONID_EMAIL])
+		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
+		if rec[VALID_STATUS] == indicator {
+			voters = append(voters, rec[VALID_ONID_EMAIL])
+		}
 
 	}
 

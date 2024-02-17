@@ -59,24 +59,26 @@ func TestLoadValidVoters(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	writeFile(dir+"/test.txt", []string{
-		"First Name,Last Name,Email,ONID",
-		"first1,last1,email1@example.com,onid1",
-		"first2,last2,email2@example.com,onid2",
-		"first3,last3,email3@example.com,onid3"})
+		"First Name,Last Name,Email,ONID,G_UG_STATUS",
+		"first1,last1,email1@example.com,onid1,UG",
+		"first2,last2,email2@example.com,onid2,UG",
+		"first3,last3,email3@example.com,onid3,G"})
 
 	type args struct {
-		fileName string
+		fileName  string
+		gradorund string
 	}
 	tests := []struct {
 		name string
 		args args
 		want []string
 	}{
-		{name: "Basic", args: args{fileName: dir + "/test.txt"}, want: []string{"email1@example.com", "email2@example.com", "email3@example.com"}},
+		{name: "Basic", args: args{fileName: dir + "/test.txt", gradorund: "G"}, want: []string{"email3@example.com"}},
+		{name: "Basic", args: args{fileName: dir + "/test.txt", gradorund: "UG"}, want: []string{"email1@example.com", "email2@example.com"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadValidVoters(tt.args.fileName); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadValidVoters(tt.args.fileName, tt.args.gradorund); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadValidVoters() = %v, want %v", got, tt.want)
 			}
 		})

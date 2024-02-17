@@ -31,7 +31,7 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVoters := util.LoadValidVoters("data/validVoters.csv")
+	validVoters := []string{} //util.LoadValidVoters("data/validVoters.csv")
 
 	log.Printf("There are %d valid student voters\n", len(validVoters))
 
