@@ -56,6 +56,7 @@ func main() {
 
 	//"random" seed so winners are deterministic
 	var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
+	log.Println("Seed:", seed)
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
@@ -75,6 +76,10 @@ func main() {
 	log.Printf("Loading already voted up to day %d...\n", startDay)
 	alreadyVotedPrevious = util.LoadAlreadyVoted("data/alreadyVoted", int64(startDay))
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
+	// print warning to make sure results are accurate
+	if startDay != endDay && len(alreadyVotedPrevious) > 0 {
+		log.Println("Warning: already voted data is being used across multiple days, this should not be done for the final results")
+	}
 
 	// Load the votes
 	log.Println("Loading votes...")
@@ -125,7 +130,12 @@ func main() {
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
-		//experimental
 		steps.StepFourtyTwo(validPostTwo, "output/results")
+	} else {
+		log.Println("Not running step 42, only one day")
+		log.Println("Adding already voted to the already voted data directory")
+		util.StoreStringArrayFile(alreadyVotedToday, "data/alreadyVoted/alreadyVoted-"+dayToDayFormat+".csv")
 	}
+
+	log.Println("Done")
 }
