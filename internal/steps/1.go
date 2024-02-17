@@ -3,7 +3,7 @@ package steps
 import (
 	"log"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 func StepOne(votes []util.Vote, validVoters *[]string) ([]util.Vote, []util.Vote, util.Summary) {

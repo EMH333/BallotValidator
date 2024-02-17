@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 func TestCountPopularityVote(t *testing.T) {

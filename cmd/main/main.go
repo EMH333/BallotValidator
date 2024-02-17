@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"ethohampton.com/BallotCleaner/internal/steps"
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/steps"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 var validVoters []string

@@ -6,7 +6,7 @@ import (
 	"log"
 	"math/rand"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 func StepFour(previousVotes []string, votes []util.Vote, seed string, numberToPick int) ([]util.Vote, []string, util.Summary) {

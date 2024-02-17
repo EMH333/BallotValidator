@@ -3,7 +3,7 @@ package steps
 import (
 	"log"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 //returns valid, invaild, onids that voted and summary

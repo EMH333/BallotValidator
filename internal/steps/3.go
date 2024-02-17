@@ -3,7 +3,7 @@ package steps
 import (
 	"log"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 //start includes first time to remove

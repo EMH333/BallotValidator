@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 const START_TIME_INDEX = 0

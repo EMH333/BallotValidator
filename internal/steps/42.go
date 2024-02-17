@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 const TALLY_SENATE_OPTIONS = 17 //index

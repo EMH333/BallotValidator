@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 func TestStepTwo(t *testing.T) {

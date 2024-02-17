@@ -5,8 +5,8 @@ import (
 	"os"
 	"sort"
 
-	"ethohampton.com/BallotCleaner/internal/steps"
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/steps"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 // get the ONID emails for all eligible students that haven't voted yet and voted last year

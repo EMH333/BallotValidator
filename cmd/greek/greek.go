@@ -10,8 +10,8 @@ import (
 	"sort"
 	"strings"
 
-	"ethohampton.com/BallotCleaner/internal/steps"
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/steps"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 //determine percentage of each fraternity and sorority that has voted

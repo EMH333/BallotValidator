@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"ethohampton.com/BallotCleaner/internal/util"
+	"ethohampton.com/BallotValidator/internal/util"
 )
 
 func TestStepCure(t *testing.T) {
