@@ -14,7 +14,12 @@ import (
 	"time"
 )
 
-var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01", time.Local)
+var ELECTION_TIMEZONE, timezoneErr = time.LoadLocation("America/Los_Angeles")
+var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01", ELECTION_TIMEZONE)
+
+const ELECTION_NUM_DAYS = 18
+const ELECTION_START_TIME = "2023-02-20 12:00:00"
+const ELECTION_END_TIME = "2023-03-10 12:00:00"
 
 const BALLOT_TIME_FORMAT = "2006-01-02 15:04:05"
 
@@ -27,7 +32,10 @@ const IMPORT_ID = 8
 
 // TODO use this to also load new votes csv (add ONID and logging options)
 func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
-	// make sure our epoch is valid
+	// make sure our timezone and epoch are valid
+	if timezoneErr != nil {
+		log.Fatal(timezoneErr)
+	}
 	if epochErr != nil {
 		log.Fatal(epochErr)
 	}
@@ -35,8 +43,15 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 	var validStartTime = EPOCH.Add(time.Duration(startDay) * 24 * time.Hour)
 	var validEndTime = EPOCH.Add(time.Duration(endDay+1) * 24 * time.Hour) // add one day to end day
 
-	if endDay == 18 {
-		newEndTime, err := time.ParseInLocation("2006-Jan-02 15:04:05", "2023-Mar-10 12:00:00", time.Local)
+	// validate the start and end time
+	if startDay == 0 && endDay == ELECTION_NUM_DAYS {
+		newStartTime, err := time.ParseInLocation(BALLOT_TIME_FORMAT, ELECTION_START_TIME, ELECTION_TIMEZONE)
+		if err != nil {
+			log.Fatal(err)
+		}
+		validStartTime = newStartTime
+
+		newEndTime, err := time.ParseInLocation(BALLOT_TIME_FORMAT, ELECTION_END_TIME, ELECTION_TIMEZONE)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -70,7 +85,7 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 			log.Fatal(err)
 		}
 
-		//skip the first few rows
+		//skip the first few rows which are headers
 		if rec[IMPORT_TIMESTAMP] == "EndDate" || rec[IMPORT_TIMESTAMP] == "End Date" || strings.Contains(rec[IMPORT_TIMESTAMP], "ImportId") {
 			continue
 		}
@@ -80,7 +95,7 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 			continue
 		}
 
-		timestamp, err := time.ParseInLocation(BALLOT_TIME_FORMAT, rec[IMPORT_TIMESTAMP], time.Local) //"1/2/2006 15:04" //2/14/2022 9:10
+		timestamp, err := time.ParseInLocation(BALLOT_TIME_FORMAT, rec[IMPORT_TIMESTAMP], ELECTION_TIMEZONE) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -143,9 +158,10 @@ func LoadValidVoters(fileName string, indicator string) []string {
 	//csvReader.Comma = '\t'
 	csvReader.TrimLeadingSpace = true
 
-	//skip the first row
-	_, err = csvReader.Read()
-	if err != nil {
+	//skip the first row which is headers
+	// and check it doesn't contain an @ (which could be an email)
+	first, err := csvReader.Read()
+	if err != nil || strings.Contains(first[VALID_ONID_EMAIL], "@") {
 		log.Fatal(err)
 	}
 
@@ -160,6 +176,11 @@ func LoadValidVoters(fileName string, indicator string) []string {
 
 		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
 		if rec[VALID_STATUS] == indicator {
+			//confirm it is an email
+			if !strings.Contains(rec[VALID_ONID_EMAIL], "@") {
+				log.Fatalf("ONID is not an email address: %s\n", rec[VALID_ONID_EMAIL])
+			}
+
 			voters = append(voters, rec[VALID_ONID_EMAIL])
 		}
 
