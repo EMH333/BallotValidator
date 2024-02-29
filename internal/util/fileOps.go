@@ -15,18 +15,18 @@ import (
 )
 
 var ELECTION_TIMEZONE, timezoneErr = time.LoadLocation("America/Los_Angeles")
-var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2023-Feb-20 00:00:01", ELECTION_TIMEZONE)
+var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2024-Feb-19 00:00:01", ELECTION_TIMEZONE)
 
 const ELECTION_NUM_DAYS = 18
-const ELECTION_START_TIME = "2023-02-20 12:00:00"
-const ELECTION_END_TIME = "2023-03-10 12:00:00"
+const ELECTION_START_TIME = "2/19/2024 12:00"
+const ELECTION_END_TIME = "3/1/2024 12:00"
 
-const BALLOT_TIME_FORMAT = "2006-01-02 15:04:05"
+const BALLOT_TIME_FORMAT = "1/2/2006 15:04"
 
 // values to use when importing from csv
 const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
 const IMPORT_TYPE = 2
-const IMPORT_ONID = 50
+const IMPORT_ONID = 39
 const IMPORT_COMPLETE = 6
 const IMPORT_ID = 8
 

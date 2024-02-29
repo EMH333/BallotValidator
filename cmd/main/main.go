@@ -65,8 +65,8 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVotersGraduate = util.LoadValidVoters("data/validVoters.csv", "G")
-	validVotersUndergrad = util.LoadValidVoters("data/validVoters.csv", "UG")
+	validVotersGraduate = util.LoadValidVoters("data/validVoters.csv", "Graduate")
+	validVotersUndergrad = util.LoadValidVoters("data/validVoters.csv", "Undergraduate")
 	validVotersUndefined = util.LoadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
 	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
 	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
@@ -134,7 +134,7 @@ func main() {
 	} else {
 		log.Println("Not running step 42, only one day")
 		log.Println("Adding already voted to the already voted data directory")
-		util.StoreStringArrayFile(alreadyVotedToday, "data/alreadyVoted/alreadyVoted-"+dayToDayFormat+".csv")
+		//util.StoreStringArrayFile(alreadyVotedToday, "data/alreadyVoted/alreadyVoted-"+dayToDayFormat+".csv")
 	}
 
 	log.Println("Done")

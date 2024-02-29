@@ -9,15 +9,16 @@ import (
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
-const TALLY_SENATE_OPTIONS = 17 //index
-const TALLY_SENATE_WRITEINS = 18
-const TALLY_SFCATLARGE_OPTIONS = TALLY_SENATE_OPTIONS + TALLY_SENATE_WRITEINS + 1 //index
-const TALLY_SFCATLARGE_WRITEINS = 5
+const TALLY_UNDERGRAD_SENATE_OPTIONS = 35 //index
+const TALLY_GRADUATE_SENATE_OPTIONS = 37  //index
+const TALLY_SENATE_WRITEINS = 1
+const TALLY_SFCATLARGE_OPTIONS = 17 //index
+const TALLY_SFCATLARGE_WRITEINS = 1
 
-const TALLY_PRES_OPTIONS_START = TALLY_SFCATLARGE_OPTIONS + TALLY_SFCATLARGE_WRITEINS + 1 //index
-const TALLY_PRES_OPTIONS_NUMBER = 2
-const TALLY_SFCCHAIR_OPTIONS_START = TALLY_PRES_OPTIONS_START + TALLY_PRES_OPTIONS_NUMBER + 2 //2 because of the writeins //index
-const TALLY_SFCCHAIR_OPTIONS_NUMBER = 2
+const TALLY_PRES_OPTIONS_START = 27 //index
+const TALLY_PRES_OPTIONS_NUMBER = 5
+const TALLY_SFCCHAIR_OPTIONS_START = 19 //2 because of the writeins //index
+const TALLY_SFCCHAIR_OPTIONS_NUMBER = 6
 
 // designed to do all the counting and output a nice little summary
 func StepFourtyTwo(votes []util.Vote, outputDirname string) {
@@ -25,12 +26,14 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 		log.Fatal("No votes to find results for")
 	}
 
-	var senate map[string]int = make(map[string]int)
+	var undergradSenate map[string]int = make(map[string]int)
+	var graduateSenate map[string]int = make(map[string]int)
 	var sfcAtLarge map[string]int = make(map[string]int)
 
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(&vote, &senate, TALLY_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
+		countPopularityVote(&vote, &undergradSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
+		countPopularityVote(&vote, &graduateSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
 
 		///////////////////SFC AT LARGE/////////////////////////////
 		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 5)
@@ -38,10 +41,10 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	//log.Println("Counted Popularity Votes")
 
 	//presidental ticket
-	presidentResults := util.RunIRV(votes, []string{"Julia Hayes for President & Angelo Arredondo for Vice President", "Carissa O'Donnell for President & Dakota Canzano for Vice President"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(votes, []string{"1", "2", "3", "4", "5"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
 	//SFC chair
-	sfcChairResults := util.RunIRV(votes, []string{"Matteo Paola", "Noa Stoll"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
+	sfcChairResults := util.RunIRV(votes, []string{"1", "2", "3", "4", "5", "6"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
@@ -49,7 +52,7 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	}
 
 	//write to senate file
-	writeMultipleVoteResults(&senate, outputDirname+"/senate.csv")
+	writeMultipleVoteResults(&undergradSenate, outputDirname+"/senate.csv")
 
 	//write to SFC At-large file
 	writeMultipleVoteResults(&sfcAtLarge, outputDirname+"/sfc-at-large.csv")

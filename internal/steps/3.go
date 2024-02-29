@@ -9,10 +9,10 @@ import (
 //TODO refactor to use step 42 values
 //start includes first time to remove
 //end is first item after the ones to remove
-const THREE_START = 31
-const THREE_END = THREE_START + 27
+const THREE_START = 35
+const THREE_END = 38
 
-const THREE_CHOICE = 30
+const THREE_CHOICE = 34
 
 //returns valid, invaild, and summary
 func StepThree(votes []util.Vote, validVotersGraduate, validVotersUndergraduate *[]string) ([]util.Vote, []util.Vote, util.Summary) {
