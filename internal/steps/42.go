@@ -32,8 +32,8 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(&vote, &undergradSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
-		countPopularityVote(&vote, &graduateSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 18)
+		countPopularityVote(&vote, &undergradSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 15)
+		countPopularityVote(&vote, &graduateSenate, TALLY_GRADUATE_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 3)
 
 		///////////////////SFC AT LARGE/////////////////////////////
 		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 5)
@@ -52,7 +52,8 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	}
 
 	//write to senate file
-	writeMultipleVoteResults(&undergradSenate, outputDirname+"/senate.csv")
+	writeMultipleVoteResults(&undergradSenate, outputDirname+"/undergradSenate.csv")
+	writeMultipleVoteResults(&graduateSenate, outputDirname+"/graduateSenate.csv")
 
 	//write to SFC At-large file
 	writeMultipleVoteResults(&sfcAtLarge, outputDirname+"/sfc-at-large.csv")
