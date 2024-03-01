@@ -41,10 +41,10 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	//log.Println("Counted Popularity Votes")
 
 	//presidental ticket
-	presidentResults := util.RunIRV(votes, []string{"1", "2", "3", "4", "5"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(votes, []string{"Adrian Bernal Canales & Diego Menendez", "Audrey Schlotter & Zach Kowash", "Chandler Donahey & Will Garrison", "Efimya (Mya) Kuzmin & Angelo Arredondo Baca", "Nathan Schmidt & Narmeen Rashid"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
 
 	//SFC chair
-	sfcChairResults := util.RunIRV(votes, []string{"1", "2", "3", "4", "5", "6"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
+	sfcChairResults := util.RunIRV(votes, []string{"Cole Peters", "Kyle Locke", "Lillian Judith Goodyear", "Madison Wusstig", "Shawn Aundrae Durr", "Sophia Nowers"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
