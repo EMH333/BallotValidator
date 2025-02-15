@@ -115,7 +115,7 @@ func main() {
 	// step three: grad/undergrad
 	log.Println()
 	log.Println("Step 3: Grad/undergrad")
-	validPostThree, invalidPostThree, threeSummary := steps.StepThree(validPostTwo, &validVotersGraduate, &validVotersUndergrad)
+	validPostThree, invalidPostThree, threeSummary := steps.StepThree(&coutingConfig, validPostTwo, &validVotersGraduate, &validVotersUndergrad)
 	util.StoreVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
 	util.StoreSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
