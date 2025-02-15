@@ -19,9 +19,10 @@ var alreadyVotedPrevious []string
 const numToPick int = 28 // how many winners to pick
 
 func main() {
-	var startDay int64 = 0      // what day are we starting on to process votes
-	var endDay int64 = startDay // what day are we ending on to process votes
+	var startDay int = 0      // what day are we starting on to process votes
+	var endDay int = startDay // what day are we ending on to process votes
 	var dataFile string = "ballotData.csv"
+	var countingConfigFile string = "counting_config.json"
 
 	// in the form of `program <day> <file_to_process>`
 	if len(os.Args) == 3 {
@@ -29,8 +30,8 @@ func main() {
 		if err != nil {
 			log.Fatal("Couldn't parse argument")
 		}
-		startDay = day
-		endDay = day
+		startDay = int(day)
+		endDay = int(day)
 		dataFile = os.Args[2]
 	}
 
@@ -46,8 +47,8 @@ func main() {
 			log.Fatal("Couldn't parse argument 2")
 		}
 
-		startDay = day1
-		endDay = day2
+		startDay = int(day1)
+		endDay = int(day2)
 		dataFile = os.Args[3]
 	}
 
@@ -58,6 +59,9 @@ func main() {
 	var seed = util.LoadSeed() + "-" + dayToDayFormat //include days in picking so it is unique
 	log.Println("Seed:", seed)
 
+	log.Printf("Loading counting config from: %s", countingConfigFile)
+	coutingConfig := util.LoadCountingConfig(countingConfigFile)
+
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
 		log.Fatal("Could not create output directory")
@@ -65,16 +69,16 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVotersGraduate = util.LoadValidVoters("data/validVoters.csv", "Graduate")
-	validVotersUndergrad = util.LoadValidVoters("data/validVoters.csv", "Undergraduate")
-	validVotersUndefined = util.LoadValidVoters("data/validVoters.csv", "Self Identified on Ballot")
+	validVotersGraduate = util.LoadValidVoters(&coutingConfig, "Graduate")
+	validVotersUndergrad = util.LoadValidVoters(&coutingConfig, "Undergraduate")
+	validVotersUndefined = util.LoadValidVoters(&coutingConfig, "Self Identified on Ballot")
 	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
 	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
 	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
-	alreadyVotedPrevious = util.LoadAlreadyVoted("data/alreadyVoted", int64(startDay))
+	alreadyVotedPrevious = util.LoadAlreadyVoted(&coutingConfig, int64(startDay))
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
 	// print warning to make sure results are accurate
 	if startDay != endDay && len(alreadyVotedPrevious) > 0 {
@@ -83,7 +87,7 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := util.LoadVotesCSV("data/ballots/"+dataFile, startDay, endDay, util.IMPORT_ONID)
+	votes := util.LoadVotesCSV(&coutingConfig, "data/ballots/"+dataFile, startDay, endDay)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 	util.StoreVotes(votes, "original-"+dayToDayFormat+".csv")
 
@@ -130,7 +134,7 @@ func main() {
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
-		steps.StepFourtyTwo(validPostTwo, "output/results")
+		steps.StepFourtyTwo(&coutingConfig, validPostTwo, "output/results")
 	} else {
 		log.Println("Not running step 42, only one day")
 		log.Println("Adding already voted to the already voted data directory")

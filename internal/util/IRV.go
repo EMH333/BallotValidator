@@ -20,7 +20,7 @@ type IRVBallot struct {
 	ID      string
 }
 
-func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
+func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
 	if len(votes) == 0 {
 		return []string{"No votes cast"}
 	}
@@ -28,7 +28,7 @@ func RunIRV(votes []Vote, includedCandidates []string, numCandidates, offset int
 	var logMessages []string
 
 	//first process into ballots
-	ballots, createMessages := createIRVBallots(&votes, includedCandidates, numCandidates, offset)
+	ballots, createMessages := createIRVBallots(countingConfig, &votes, includedCandidates, numCandidates, offset)
 
 	logMessages = append(logMessages, createMessages...)
 	logMessages = append(logMessages, fmt.Sprint("Number of ballots: ", len(ballots)), "")
@@ -167,7 +167,7 @@ func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
 	return candidateVotes, ballotsCountedThisRound
 }
 
-func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
+func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
 	var ballots []IRVBallot
 	var logMessages []string
 	for _, vote := range *votes {
@@ -213,7 +213,7 @@ func createIRVBallots(votes *[]Vote, includedCandidates []string, numCandidates,
 					validBallot = false
 				}
 
-				writeInName := CleanVote(vote.Raw[offset+numCandidates+1])
+				writeInName := CleanVote(countingConfig, vote.Raw[offset+numCandidates+1])
 				ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 			}
 		}

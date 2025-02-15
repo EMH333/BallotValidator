@@ -9,19 +9,8 @@ import (
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
-const TALLY_UNDERGRAD_SENATE_OPTIONS = 35 //index
-const TALLY_GRADUATE_SENATE_OPTIONS = 37  //index
-const TALLY_SENATE_WRITEINS = 1
-const TALLY_SFCATLARGE_OPTIONS = 17 //index
-const TALLY_SFCATLARGE_WRITEINS = 1
-
-const TALLY_PRES_OPTIONS_START = 27 //index
-const TALLY_PRES_OPTIONS_NUMBER = 5
-const TALLY_SFCCHAIR_OPTIONS_START = 19 //2 because of the writeins //index
-const TALLY_SFCCHAIR_OPTIONS_NUMBER = 6
-
 // designed to do all the counting and output a nice little summary
-func StepFourtyTwo(votes []util.Vote, outputDirname string) {
+func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outputDirname string) {
 	if len(votes) == 0 {
 		log.Fatal("No votes to find results for")
 	}
@@ -32,19 +21,19 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(&vote, &undergradSenate, TALLY_UNDERGRAD_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 15)
-		countPopularityVote(&vote, &graduateSenate, TALLY_GRADUATE_SENATE_OPTIONS, TALLY_SENATE_WRITEINS, 3)
+		countPopularityVote(countingConfig, &vote, &undergradSenate, countingConfig.TallyUndergradeSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyUndergraduateSenateWinners)
+		countPopularityVote(countingConfig, &vote, &graduateSenate, countingConfig.TallyGraduateSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyGraduateSenateWinners)
 
 		///////////////////SFC AT LARGE/////////////////////////////
-		countPopularityVote(&vote, &sfcAtLarge, TALLY_SFCATLARGE_OPTIONS, TALLY_SFCATLARGE_WRITEINS, 5)
+		countPopularityVote(countingConfig, &vote, &sfcAtLarge, countingConfig.TallySFCAtLargeOptionsIndex, countingConfig.TallySFCAtLargeWritinsCount, countingConfig.TallySFCAtLargeWinners)
 	}
 	//log.Println("Counted Popularity Votes")
 
 	//presidental ticket
-	presidentResults := util.RunIRV(votes, []string{"Adrian Bernal Canales & Diego Menendez", "Audrey Schlotter & Zach Kowash", "Chandler Donahey & Will Garrison", "Efimya (Mya) Kuzmin & Angelo Arredondo Baca", "Nathan Schmidt & Narmeen Rashid"}, TALLY_PRES_OPTIONS_NUMBER, TALLY_PRES_OPTIONS_START)
+	presidentResults := util.RunIRV(countingConfig, votes, countingConfig.CandidatesPresident, countingConfig.TallyPresidentOptionsCount, countingConfig.TallyPresidentOptionsIndex)
 
 	//SFC chair
-	sfcChairResults := util.RunIRV(votes, []string{"Cole Peters", "Kyle Locke", "Lillian Judith Goodyear", "Madison Wusstig", "Shawn Aundrae Durr", "Sophia Nowers"}, TALLY_SFCCHAIR_OPTIONS_NUMBER, TALLY_SFCCHAIR_OPTIONS_START)
+	sfcChairResults := util.RunIRV(countingConfig, votes, countingConfig.CandidatesSFCChair, countingConfig.TallySFCChairOptionsCount, countingConfig.TallySFCChairOptionsIndex)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
@@ -65,7 +54,7 @@ func StepFourtyTwo(votes []util.Vote, outputDirname string) {
 	writeIRVResults(sfcChairResults, outputDirname+"/sfc-chair.txt")
 }
 
-func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosition int, numWriteins int, maxVotes int) {
+func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, position *map[string]int, initialPosition int, numWriteins int, maxVotes int) {
 	rawVotes := strings.Split(vote.Raw[initialPosition], ",")
 	var votes []string
 	// clean up the write in entries
@@ -79,7 +68,8 @@ func countPopularityVote(vote *util.Vote, position *map[string]int, initialPosit
 	for i := 0; i < numWriteins; i++ {
 		wi := vote.Raw[initialPosition+1+i]
 		if wi != "" {
-			votes = append(votes, util.CleanVote(wi))
+			//TODO seperate commas here before normalizing votes
+			votes = append(votes, util.CleanVote(countingConfig, wi))
 		}
 	}
 

@@ -15,27 +15,14 @@ import (
 )
 
 var ELECTION_TIMEZONE, timezoneErr = time.LoadLocation("America/Los_Angeles")
-var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", "2024-Feb-19 00:00:01", ELECTION_TIMEZONE)
-
-const ELECTION_NUM_DAYS = 18
-const ELECTION_START_TIME = "2/19/2024 12:00"
-const ELECTION_END_TIME = "3/1/2024 12:00"
-
-const BALLOT_TIME_FORMAT = "1/2/2006 15:04"
-
-// values to use when importing from csv
-const IMPORT_TIMESTAMP = 1 //using end date so it is consistent across submission times
-const IMPORT_TYPE = 2
-const IMPORT_ONID = 39
-const IMPORT_COMPLETE = 6
-const IMPORT_ID = 8
 
 // TODO use this to also load new votes csv (add ONID and logging options)
-func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
+func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, endDay int) []Vote {
 	// make sure our timezone and epoch are valid
 	if timezoneErr != nil {
 		log.Fatal(timezoneErr)
 	}
+	var EPOCH, epochErr = time.ParseInLocation("2006-Jan-02 03:04:05", countingConfig.ElectionEpoch, ELECTION_TIMEZONE)
 	if epochErr != nil {
 		log.Fatal(epochErr)
 	}
@@ -44,14 +31,14 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 	var validEndTime = EPOCH.Add(time.Duration(endDay+1) * 24 * time.Hour) // add one day to end day
 
 	// validate the start and end time
-	if startDay == 0 && endDay == ELECTION_NUM_DAYS {
-		newStartTime, err := time.ParseInLocation(BALLOT_TIME_FORMAT, ELECTION_START_TIME, ELECTION_TIMEZONE)
+	if startDay == 0 && endDay == countingConfig.ElectionNumDays {
+		newStartTime, err := time.ParseInLocation(countingConfig.BallotTimeFormat, countingConfig.ElectionStartTime, ELECTION_TIMEZONE)
 		if err != nil {
 			log.Fatal(err)
 		}
 		validStartTime = newStartTime
 
-		newEndTime, err := time.ParseInLocation(BALLOT_TIME_FORMAT, ELECTION_END_TIME, ELECTION_TIMEZONE)
+		newEndTime, err := time.ParseInLocation(countingConfig.BallotTimeFormat, countingConfig.ElectionEndTime, ELECTION_TIMEZONE)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -86,16 +73,16 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 		}
 
 		//skip the first few rows which are headers
-		if rec[IMPORT_TIMESTAMP] == "EndDate" || rec[IMPORT_TIMESTAMP] == "End Date" || strings.Contains(rec[IMPORT_TIMESTAMP], "ImportId") {
+		if rec[countingConfig.ImportTimestamp] == "EndDate" || rec[countingConfig.ImportTimestamp] == "End Date" || strings.Contains(rec[countingConfig.ImportTimestamp], "ImportId") {
 			continue
 		}
 
-		if rec[IMPORT_TYPE] == "Survey Preview" {
+		if rec[countingConfig.ImportType] == "Survey Preview" {
 			log.Println("Skipping survey preview response")
 			continue
 		}
 
-		timestamp, err := time.ParseInLocation(BALLOT_TIME_FORMAT, rec[IMPORT_TIMESTAMP], ELECTION_TIMEZONE) //"1/2/2006 15:04" //2/14/2022 9:10
+		timestamp, err := time.ParseInLocation(countingConfig.BallotTimeFormat, rec[countingConfig.ImportTimestamp], ELECTION_TIMEZONE) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -107,7 +94,7 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 			continue
 		}
 
-		ONID := rec[ONIDIndex]
+		ONID := rec[countingConfig.ImportONID]
 		//sanity check to make sure the ONID looks like an email
 		if !strings.Contains(ONID, "@oregonstate.edu") {
 			log.Fatalf("ONID is not an email address: %s\n", ONID)
@@ -118,15 +105,15 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 		}
 
 		//make sure it is a complete row
-		if strings.ToUpper(rec[IMPORT_COMPLETE]) != "TRUE" {
+		if strings.ToUpper(rec[countingConfig.ImportComplete]) != "TRUE" {
 			//log.Printf("Vote is not complete: %+v\n", rec)
-			log.Printf("Vote is not complete from %s: %+v\n", rec[ONIDIndex], rec[0:IMPORT_COMPLETE+2])
+			log.Printf("Vote is not complete from %s: %+v\n", rec[countingConfig.ImportONID], rec[0:countingConfig.ImportComplete+2])
 			incompleteVotes++
 			continue
 		}
 
-		id := rec[IMPORT_ID]
-		if !strings.HasPrefix(rec[IMPORT_ID], "R_") {
+		id := rec[countingConfig.ImportID]
+		if !strings.HasPrefix(rec[countingConfig.ImportID], "R_") {
 			log.Fatalf("Response ID is not valid: %+v\n", rec)
 		}
 
@@ -140,14 +127,11 @@ func LoadVotesCSV(fileName string, startDay, endDay, ONIDIndex int64) []Vote {
 	return votes
 }
 
-const VALID_ONID_EMAIL = 2
-const VALID_STATUS = 4 //G_UG_STATUS TODO
-
-func LoadValidVoters(fileName string, indicator string) []string {
+func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string {
 	var voters []string
 
 	//open csv file
-	f, err := os.Open(fileName)
+	f, err := os.Open(countingConfig.ValidVotersFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -161,7 +145,7 @@ func LoadValidVoters(fileName string, indicator string) []string {
 	//skip the first row which is headers
 	// and check it doesn't contain an @ (which could be an email)
 	first, err := csvReader.Read()
-	if err != nil || strings.Contains(first[VALID_ONID_EMAIL], "@") {
+	if err != nil || strings.Contains(first[countingConfig.ValidVotersEmailIndex], "@") {
 		log.Fatal(err)
 	}
 
@@ -175,13 +159,13 @@ func LoadValidVoters(fileName string, indicator string) []string {
 		}
 
 		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
-		if rec[VALID_STATUS] == indicator {
+		if rec[countingConfig.ValidVotersStatusIndex] == indicator {
 			//confirm it is an email
-			if !strings.Contains(rec[VALID_ONID_EMAIL], "@") {
-				log.Fatalf("ONID is not an email address: %s\n", rec[VALID_ONID_EMAIL])
+			if !strings.Contains(rec[countingConfig.ValidVotersEmailIndex], "@") {
+				log.Fatalf("ONID is not an email address: %s\n", rec[countingConfig.ValidVotersEmailIndex])
 			}
 
-			voters = append(voters, rec[VALID_ONID_EMAIL])
+			voters = append(voters, rec[countingConfig.ValidVotersEmailIndex])
 		}
 
 	}
@@ -189,8 +173,10 @@ func LoadValidVoters(fileName string, indicator string) []string {
 	return voters
 }
 
-func LoadAlreadyVoted(folder string, upToDay int64) []string {
+func LoadAlreadyVoted(countingConfig *CountingConfig, upToDay int64) []string {
 	var alreadyVoted []string
+
+	folder := countingConfig.AlreadyVotedDir
 
 	//make sure folder ends with a slash
 	if !strings.HasSuffix(folder, "/") {

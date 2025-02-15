@@ -66,9 +66,11 @@ func main() {
 		log.Fatal("Could not create output directory")
 	}
 
+	var countingConfig util.CountingConfig
+
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := util.LoadVotesCSV("data/ballots/"+dataFile, START, END, util.IMPORT_ONID)
+	votes := util.LoadVotesCSV(&countingConfig, "data/ballots/"+dataFile, START, END)
 	log.Printf("%d votes loaded\n", len(votes))
 
 	// reuse step two to get the ONID emails for all eligible students that have already voted

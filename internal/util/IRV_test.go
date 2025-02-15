@@ -77,7 +77,7 @@ func TestOverallIRV(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		logMessages := RunIRV(tc.votes, tc.candidates, len(tc.candidates), 0)
+		logMessages := RunIRV(&CountingConfig{}, tc.votes, tc.candidates, len(tc.candidates), 0)
 		if !Contains(&logMessages, tc.winner) {
 			t.Errorf("Expected %s, got:\n%s\n\n", tc.winner, strings.Join(logMessages, "\n"))
 		}
@@ -124,7 +124,7 @@ func TestCreateIRVBallots(t *testing.T) {
 		"Invalid ballot: k",
 	}
 
-	ballots, logMessages := createIRVBallots(&votes, includedCandidates, numCandidates, offset)
+	ballots, logMessages := createIRVBallots(&CountingConfig{}, &votes, includedCandidates, numCandidates, offset)
 
 	if len(ballots) != len(expectedBallots) {
 		t.Errorf("Expected %d ballots, got %d", len(expectedBallots), len(ballots))

@@ -23,7 +23,7 @@ func TestCountPopularityVote(t *testing.T) {
 	var results map[string]int = make(map[string]int)
 
 	for _, v := range votes {
-		countPopularityVote(&v, &results, 0, 2, 8)
+		countPopularityVote(&util.CountingConfig{}, &v, &results, 0, 2, 8)
 	}
 
 	for k, v := range results {
@@ -50,7 +50,7 @@ func TestMaxVotesPopularity(t *testing.T) {
 	var results map[string]int = make(map[string]int)
 
 	for _, v := range votes {
-		countPopularityVote(&v, &results, 0, 2, 3)
+		countPopularityVote(&util.CountingConfig{}, &v, &results, 0, 2, 3)
 	}
 
 	if results["a"] != 3 {

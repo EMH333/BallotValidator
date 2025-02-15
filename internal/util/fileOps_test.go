@@ -64,8 +64,14 @@ func TestLoadValidVoters(t *testing.T) {
 		"first2,last2,email2@example.com,onid2,UG",
 		"first3,last3,email3@example.com,onid3,G"})
 
+	var countingConfig = &CountingConfig{
+		ValidVotersFile:        dir + "/test.txt",
+		ValidVotersEmailIndex:  2,
+		ValidVotersStatusIndex: 4,
+	}
+
 	type args struct {
-		fileName  string
+		config    *CountingConfig
 		gradorund string
 	}
 	tests := []struct {
@@ -73,12 +79,12 @@ func TestLoadValidVoters(t *testing.T) {
 		args args
 		want []string
 	}{
-		{name: "Basic", args: args{fileName: dir + "/test.txt", gradorund: "G"}, want: []string{"email3@example.com"}},
-		{name: "Basic", args: args{fileName: dir + "/test.txt", gradorund: "UG"}, want: []string{"email1@example.com", "email2@example.com"}},
+		{name: "Basic Graduate", args: args{config: countingConfig, gradorund: "G"}, want: []string{"email3@example.com"}},
+		{name: "Basic Undergraduate", args: args{config: countingConfig, gradorund: "UG"}, want: []string{"email1@example.com", "email2@example.com"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadValidVoters(tt.args.fileName, tt.args.gradorund); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadValidVoters(tt.args.config, tt.args.gradorund); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadValidVoters() = %v, want %v", got, tt.want)
 			}
 		})
@@ -107,23 +113,27 @@ func TestLoadAlreadyVoted(t *testing.T) {
 		"d@example.com",
 	})
 
+	var countingConfig = &CountingConfig{
+		AlreadyVotedDir: dir,
+	}
+
 	type args struct {
-		folderName string
-		upToDay    int64
+		config  *CountingConfig
+		upToDay int64
 	}
 	tests := []struct {
 		name string
 		args args
 		want []string
 	}{
-		{name: "One file", args: args{folderName: dir, upToDay: 1}, want: []string{"a@example.com", "b@example.com"}},
-		{name: "Ignore All", args: args{folderName: dir, upToDay: 0}, want: []string{}},
-		{name: "Overlaping Files", args: args{folderName: dir, upToDay: 2}, want: []string{"a@example.com", "b@example.com", "c@example.com"}},
-		{name: "All", args: args{folderName: dir, upToDay: 10}, want: []string{"a@example.com", "b@example.com", "c@example.com", "d@example.com"}},
+		{name: "One file", args: args{config: countingConfig, upToDay: 1}, want: []string{"a@example.com", "b@example.com"}},
+		{name: "Ignore All", args: args{config: countingConfig, upToDay: 0}, want: []string{}},
+		{name: "Overlaping Files", args: args{config: countingConfig, upToDay: 2}, want: []string{"a@example.com", "b@example.com", "c@example.com"}},
+		{name: "All", args: args{config: countingConfig, upToDay: 10}, want: []string{"a@example.com", "b@example.com", "c@example.com", "d@example.com"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadAlreadyVoted(tt.args.folderName, tt.args.upToDay); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadAlreadyVoted(tt.args.config, tt.args.upToDay); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadAlreadyVoted() = %v, want %v", got, tt.want)
 			}
 		})
@@ -132,11 +142,12 @@ func TestLoadAlreadyVoted(t *testing.T) {
 
 func TestLoadVotesCSV(t *testing.T) {
 	type args struct {
-		fileName  string
-		startDay  int64
-		endDay    int64
-		ONIDIndex int64
+		config   *CountingConfig
+		fileName string
+		startDay int
+		endDay   int
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -146,7 +157,7 @@ func TestLoadVotesCSV(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadVotesCSV(tt.args.fileName, tt.args.startDay, tt.args.endDay, tt.args.ONIDIndex); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadVotesCSV(tt.args.config, tt.args.fileName, tt.args.startDay, tt.args.endDay); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadVotesCSV() = %v, want %v", got, tt.want)
 			}
 		})
