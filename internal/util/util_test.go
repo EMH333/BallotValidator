@@ -57,7 +57,7 @@ func TestCleanVote(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		if CleanVote(&CountingConfig{}, testCase.vote) != testCase.expect {
+		if NormalizeVote(&CountingConfig{}, testCase.vote) != testCase.expect {
 			t.Errorf("Expected %v to be %v", testCase.vote, testCase.expect)
 		}
 	}

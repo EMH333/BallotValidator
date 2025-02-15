@@ -24,7 +24,7 @@ func RemoveDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func CleanVote(countingConfig *CountingConfig, vote string) string {
+func NormalizeVote(countingConfig *CountingConfig, vote string) string {
 	vote = strings.TrimSpace(vote)
 
 	if vote == "Write in:" || vote == "Write-in:" || vote == "Write-In" {

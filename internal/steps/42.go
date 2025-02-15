@@ -69,7 +69,7 @@ func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, p
 		wi := vote.Raw[initialPosition+1+i]
 		if wi != "" {
 			//TODO seperate commas here before normalizing votes
-			votes = append(votes, util.CleanVote(countingConfig, wi))
+			votes = append(votes, util.NormalizeVote(countingConfig, wi))
 		}
 	}
 
