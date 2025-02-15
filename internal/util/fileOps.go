@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -65,7 +66,7 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 
 	for {
 		rec, err := csvReader.Read()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -105,7 +106,7 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 		}
 
 		//make sure it is a complete row
-		if strings.ToUpper(rec[countingConfig.ImportComplete]) != "TRUE" {
+		if !strings.EqualFold(rec[countingConfig.ImportComplete], "TRUE") {
 			//log.Printf("Vote is not complete: %+v\n", rec)
 			log.Printf("Vote is not complete from %s: %+v\n", rec[countingConfig.ImportONID], rec[0:countingConfig.ImportComplete+2])
 			incompleteVotes++
@@ -247,15 +248,15 @@ func StoreSummary(summary Summary, filename string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Processed: %d\n", summary.Processed))
+	_, err = fmt.Fprintf(f, "Processed: %d\n", summary.Processed)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Valid: %d\n", summary.Valid))
+	_, err = fmt.Fprintf(f, "Valid: %d\n", summary.Valid)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = f.WriteString(fmt.Sprintf("Invalid: %d\n", summary.Invalid))
+	_, err = fmt.Fprintf(f, "Invalid: %d\n", summary.Invalid)
 	if err != nil {
 		log.Fatal(err)
 	}

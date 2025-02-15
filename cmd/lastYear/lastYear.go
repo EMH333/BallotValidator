@@ -25,7 +25,7 @@ func main() {
 	}
 
 	_, err := os.Stat("output")
-	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
+	if os.IsNotExist(err) && os.Mkdir("output", 0o755) != nil {
 		log.Fatal("Could not create output directory")
 	}
 

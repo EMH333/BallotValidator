@@ -1,0 +1,27 @@
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - asasalint
+    - errorlint
+    - exhaustive
+    - reassign
+    - recvcheck
+    - err113
+    - gocritic
+linters-settings:
+  gocritic:
+    enable-all: true
+    disabled-checks:
+      - commentFormatting
+      - commentedOutCode
+      - paramTypeCombine
+      - unnamedResult
+      - exitAfterDefer
+      - ifElseChain
+      # TODO reenable after fixes
+      - ptrToRefParam

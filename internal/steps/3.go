@@ -6,15 +6,15 @@ import (
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
-//TODO refactor to use step 42 values
-//start includes first time to remove
-//end is first item after the ones to remove
+// TODO refactor to use step 42 values
+// start includes first time to remove
+// end is first item after the ones to remove
 const THREE_START = 35
 const THREE_END = 38
 
 const THREE_CHOICE = 34
 
-//returns valid, invaild, and summary
+// returns valid, invaild, and summary
 func StepThree(votes []util.Vote, validVotersGraduate, validVotersUndergraduate *[]string) ([]util.Vote, []util.Vote, util.Summary) {
 	var initialSize int = len(votes)
 
@@ -31,7 +31,7 @@ func StepThree(votes []util.Vote, validVotersGraduate, validVotersUndergraduate 
 			//clear the all rows voting for reps
 			start := v.Raw[:THREE_START]
 			end := v.Raw[THREE_END:]
-			v.Raw = append(start, make([]string, THREE_END-THREE_START)...)
+			v.Raw = append(start, make([]string, THREE_END-THREE_START)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
 			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
 		} else if util.Contains(validVotersUndergraduate, v.ONID) && v.Raw[THREE_CHOICE] != "Undergraduate Student" {
@@ -39,7 +39,7 @@ func StepThree(votes []util.Vote, validVotersGraduate, validVotersUndergraduate 
 			//clear the all rows voting for reps
 			start := v.Raw[:THREE_START]
 			end := v.Raw[THREE_END:]
-			v.Raw = append(start, make([]string, THREE_END-THREE_START)...)
+			v.Raw = append(start, make([]string, THREE_END-THREE_START)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
 			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
 		}

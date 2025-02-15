@@ -41,8 +41,7 @@ func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []s
 		candidateVotes, ballotsCountedThisRound := countIRVVotes(&ballots)
 		var majority int = (ballotsCountedThisRound / 2) + 1 // as per statute, the majority is based on the number of votes cast in the round, not overall
 
-		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound))
-		logMessages = append(logMessages, "----------------------------------------------------")
+		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound), "----------------------------------------------------")
 
 		//copy candidateVotes to a new map so we can delete entries as we print them
 		var candidateVotesCopy map[string]int = make(map[string]int)
@@ -52,16 +51,16 @@ func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []s
 
 		//print candidates in order of votes
 		for len(candidateVotesCopy) > 0 {
-			var max int = 0
+			var maxNum int = 0
 			var maxKey string = ""
 			for candidate, votes := range candidateVotesCopy {
 				// sort by alphabetical order if same number of votes
-				if votes > max || (votes >= max && candidate < maxKey) {
-					max = votes
+				if votes > maxNum || (votes >= maxNum && candidate < maxKey) {
+					maxNum = votes
 					maxKey = candidate
 				}
 			}
-			logMessages = append(logMessages, maxKey+" has "+strconv.Itoa(max)+" votes")
+			logMessages = append(logMessages, maxKey+" has "+strconv.Itoa(maxNum)+" votes")
 			delete(candidateVotesCopy, maxKey)
 		}
 

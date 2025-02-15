@@ -44,7 +44,7 @@ func main() {
 	}
 
 	_, err := os.Stat("output")
-	if os.IsNotExist(err) && os.Mkdir("output", 0755) != nil {
+	if os.IsNotExist(err) && os.Mkdir("output", 0o755) != nil {
 		log.Fatal("Could not create output directory")
 	}
 
@@ -98,10 +98,7 @@ func main() {
 }
 
 func loadMembers(file string) []Member {
-	reg, err := regexp.Compile(`\b(Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega|Fiji|Farmhouse|Acacia|AEPi|DTD|KDChi|SDO|Sig)`)
-	if err != nil {
-		log.Fatal(err)
-	}
+	reg := regexp.MustCompile(`\b(Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega|Fiji|Farmhouse|Acacia|AEPi|DTD|KDChi|SDO|Sig)`)
 
 	var members []Member
 
@@ -138,7 +135,7 @@ func loadMembers(file string) []Member {
 		orgNoName := strings.TrimSpace(reg.ReplaceAllString(org, ""))
 
 		//replace all the non-greek stuff at the end with nothing and keep the greek stuff
-		finalOrg := strings.TrimSpace(strings.Replace(org, orgNoName, "", -1))
+		finalOrg := strings.TrimSpace(strings.ReplaceAll(org, orgNoName, ""))
 
 		//This indicates that I parsed something wrong
 		if finalOrg == "" {

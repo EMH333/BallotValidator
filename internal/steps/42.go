@@ -36,7 +36,7 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 	sfcChairResults := util.RunIRV(countingConfig, votes, countingConfig.CandidatesSFCChair, countingConfig.TallySFCChairOptionsCount, countingConfig.TallySFCChairOptionsIndex)
 
 	_, err := os.Stat(outputDirname)
-	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0755) != nil {
+	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0o755) != nil {
 		log.Fatal("Could not create output directory", outputDirname)
 	}
 
@@ -100,27 +100,27 @@ func writeMultipleVoteResults(results *map[string]int, filename string) {
 	}
 
 	//print results in order of value
-	//copy results to a new map so we can delete entries
-	var copy map[string]int = make(map[string]int)
+	//resultsCopy results to a new map so we can delete entries
+	var resultsCopy map[string]int = make(map[string]int)
 	for k, v := range *results {
-		copy[k] = v
+		resultsCopy[k] = v
 	}
 
-	for len(copy) > 0 {
-		var max int = 0
+	for len(resultsCopy) > 0 {
+		var maxNum int = 0
 		var maxKey string = ""
-		for k, v := range copy {
+		for k, v := range resultsCopy {
 			// sort by alphabetical order if same number of votes
-			if v > max || (v >= max && k < maxKey) {
-				max = v
+			if v > maxNum || (v >= maxNum && k < maxKey) {
+				maxNum = v
 				maxKey = k
 			}
 		}
-		_, err = f.WriteString("\"" + maxKey + "\"" + "," + fmt.Sprint(max) + "\n")
+		_, err = f.WriteString("\"" + maxKey + "\"" + "," + fmt.Sprint(maxNum) + "\n")
 		if err != nil {
 			log.Fatal(err)
 		}
-		delete(copy, maxKey)
+		delete(resultsCopy, maxKey)
 	}
 
 	err = f.Sync()
