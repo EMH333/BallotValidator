@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -189,7 +188,7 @@ func LoadAlreadyVoted(countingConfig *CountingConfig, upToDay int64) []string {
 		log.Fatalf("%s doesn't exist", folder)
 	}
 
-	files, err := ioutil.ReadDir(folder)
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		log.Fatal(err)
 	}
