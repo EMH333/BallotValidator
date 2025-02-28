@@ -69,9 +69,9 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVotersGraduate = util.LoadValidVoters(&coutingConfig, "Graduate")
-	validVotersUndergrad = util.LoadValidVoters(&coutingConfig, "Undergraduate")
-	validVotersUndefined = util.LoadValidVoters(&coutingConfig, "Self Identified on Ballot")
+	validVotersGraduate = util.LoadValidVoters(&coutingConfig, "G")
+	validVotersUndergrad = util.LoadValidVoters(&coutingConfig, "UG")
+	validVotersUndefined = util.LoadValidVoters(&coutingConfig, "INTO non-UG/G")
 	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
 	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
 	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
