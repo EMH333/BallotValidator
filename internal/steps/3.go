@@ -25,7 +25,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 			end := v.Raw[countingConfig.StepThreeEndIndex:]
 			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndex-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
-			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
+			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+v.Raw[countingConfig.StepThreeChoiceIndex])
 		} else if util.Contains(validVotersUndergraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Undergraduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
@@ -33,7 +33,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 			end := v.Raw[countingConfig.StepThreeEndIndex:]
 			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndex-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
-			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
+			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+v.Raw[countingConfig.StepThreeChoiceIndex])
 		}
 
 		endColumns := len(v.Raw)

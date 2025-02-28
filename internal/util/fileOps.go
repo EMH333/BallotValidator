@@ -76,6 +76,9 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 		if rec[countingConfig.ImportTimestamp] == "EndDate" || rec[countingConfig.ImportTimestamp] == "End Date" || strings.Contains(rec[countingConfig.ImportTimestamp], "ImportId") {
 			continue
 		}
+		if rec[countingConfig.ImportTimestamp] == "StartDate" || rec[countingConfig.ImportTimestamp] == "Start Date" {
+			continue
+		}
 
 		if rec[countingConfig.ImportType] == "Survey Preview" {
 			log.Println("Skipping survey preview response")
@@ -97,7 +100,7 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 		ONID := rec[countingConfig.ImportONID]
 		//sanity check to make sure the ONID looks like an email
 		if !strings.Contains(ONID, "@oregonstate.edu") {
-			log.Fatalf("ONID is not an email address: %s\n", ONID)
+			log.Fatalf("ONID is not an email address: %s, vote id: %s\n", ONID, rec[countingConfig.ImportID])
 		}
 
 		if strings.Contains(strings.Split(ONID, "@")[0], ".") {
