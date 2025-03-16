@@ -138,7 +138,7 @@ func main() {
 	} else {
 		log.Println("Not running step 42, only one day")
 		log.Println("Adding already voted to the already voted data directory")
-		//util.StoreStringArrayFile(alreadyVotedToday, "data/alreadyVoted/alreadyVoted-"+dayToDayFormat+".csv")
+		util.StoreStringArrayFile(alreadyVotedToday, "../data/alreadyVoted/alreadyVoted-"+dayToDayFormat+".csv")
 	}
 
 	log.Println("Done")
