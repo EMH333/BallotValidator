@@ -111,7 +111,7 @@ func main() {
 	sort.Strings(output)
 
 	//write to file
-	util.StoreStringArrayFile(output, "graduate-info.csv")
+	util.StoreStringArrayFile(output, "graduate-info.csv", true)
 
 }
 

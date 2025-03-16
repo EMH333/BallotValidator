@@ -311,7 +311,7 @@ func StoreSummary(summary Summary, filename string) {
 }
 
 // simple store list of onids
-func StoreStringArrayFile(alreadyVoted []string, filename string) {
+func StoreStringArrayFile(onids []string, filename string, sortList bool) {
 	f, err := os.Create("output/" + filename)
 	if err != nil {
 		log.Fatal(err)
@@ -319,10 +319,12 @@ func StoreStringArrayFile(alreadyVoted []string, filename string) {
 	// remember to close the file
 	defer f.Close()
 
-	//sort the alreadyVoted slice
-	sort.Strings(alreadyVoted)
+	if sortList {
+		//sort the alreadyVoted slice
+		sort.Strings(onids)
+	}
 
-	for _, record := range alreadyVoted {
+	for _, record := range onids {
 		_, err = f.WriteString(record + "\n")
 		if err != nil {
 			log.Fatal(err)

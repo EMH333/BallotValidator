@@ -93,7 +93,7 @@ func main() {
 	sort.Strings(participationOutput)
 
 	//write to file
-	util.StoreStringArrayFile(participationOutput, "greek-info.csv")
+	util.StoreStringArrayFile(participationOutput, "greek-info.csv", true)
 
 }
 
