@@ -3,7 +3,6 @@ package util
 import (
 	"bufio"
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -63,15 +62,18 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	var incompleteVotes int = 0
 	var outOfTimeVotes int = 0
 
-	for {
-		rec, err := csvReader.Read()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	for idx, rec := range records {
+		if idx == 1 {
+			err := candidateColumnIndexValidation(countingConfig, rec)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 		//skip the first few rows which are headers
 		if rec[countingConfig.ImportTimestamp] == "EndDate" || rec[countingConfig.ImportTimestamp] == "End Date" || strings.Contains(rec[countingConfig.ImportTimestamp], "ImportId") {
 			continue
@@ -128,6 +130,31 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	log.Printf("%d votes were out of time, and not counted\n", outOfTimeVotes)
 
 	return votes
+}
+
+// Make sure the candidate names for president/vice-president and sfc-chair are in the right order
+func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string) error {
+	// Validate president/vice-president order
+	initialPresidentOffset := countingConfig.TallyPresidentOptionsIndex
+	for idx, can := range countingConfig.CandidatesPresident {
+		offset := initialPresidentOffset + idx
+		entry := rec[offset]
+		if !strings.HasSuffix(strings.TrimSpace(entry), can) {
+			return fmt.Errorf("candidate names are not in the correct order for president/vp. Got '%s', expected '%s'", entry, can)
+		}
+	}
+
+	initialSfcOffset := countingConfig.TallySFCChairOptionsIndex
+	for idx, can := range countingConfig.CandidatesSFCChair {
+		offset := initialSfcOffset + idx
+		entry := rec[offset]
+		if !strings.HasSuffix(strings.TrimSpace(entry), can) {
+			return fmt.Errorf("candidate names are not in the correct order for sfc chair. Got '%s', expected '%s'", entry, can)
+		}
+	}
+
+	// No errors found
+	return nil
 }
 
 func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string {

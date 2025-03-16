@@ -163,3 +163,29 @@ func TestLoadVotesCSV(t *testing.T) {
 		})
 	}
 }
+
+func TestCandidateColumnIndexValidation(t *testing.T) {
+	testingConfig := &CountingConfig{
+		TallyPresidentOptionsIndex: 0,
+		TallySFCChairOptionsIndex:  2,
+		CandidatesPresident:        []string{"John", "Alice"},
+		CandidatesSFCChair:         []string{"Bob", "Eve"},
+	}
+
+	// all correct
+	err := candidateColumnIndexValidation(testingConfig, []string{"John", "Alice", "Bob", "Eve"})
+	if err != nil {
+		t.Errorf("Did not expect an error: %e", err)
+	}
+
+	// president wrong
+	err = candidateColumnIndexValidation(testingConfig, []string{"Alice", "John", "Bob", "Eve"})
+	if err == nil {
+		t.Errorf("Expected an error and got none")
+	}
+
+	err = candidateColumnIndexValidation(testingConfig, []string{"John", "Alice", "Eve", "Bob"})
+	if err == nil {
+		t.Errorf("Expected an error and got none")
+	}
+}
