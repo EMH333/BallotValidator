@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -132,6 +133,12 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	return votes
 }
 
+var ErrCandidateOrder = errors.New("candidates in wrong order")
+
+func CandidateOrderError(got, expected string) error {
+	return fmt.Errorf("candidates in wrong order %w. Got '%s', expected '%s'", ErrCandidateOrder, got, expected)
+}
+
 // Make sure the candidate names for president/vice-president and sfc-chair are in the right order
 func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string) error {
 	// Validate president/vice-president order
@@ -140,7 +147,7 @@ func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string
 		offset := initialPresidentOffset + idx
 		entry := rec[offset]
 		if !strings.HasSuffix(strings.TrimSpace(entry), can) {
-			return fmt.Errorf("candidate names are not in the correct order for president/vp. Got '%s', expected '%s'", entry, can)
+			return CandidateOrderError(entry, can)
 		}
 	}
 
@@ -149,7 +156,7 @@ func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string
 		offset := initialSfcOffset + idx
 		entry := rec[offset]
 		if !strings.HasSuffix(strings.TrimSpace(entry), can) {
-			return fmt.Errorf("candidate names are not in the correct order for sfc chair. Got '%s', expected '%s'", entry, can)
+			return CandidateOrderError(entry, can)
 		}
 	}
 
