@@ -45,20 +45,27 @@ func TestRemoveDuplicateStr(t *testing.T) {
 
 func TestCleanVote(t *testing.T) {
 	var testCases = []struct {
-		vote   string
-		expect string
+		vote              string
+		contest           string
+		expectNormalized  string
+		expectIsCandidate bool
 	}{
-		{"a", "A"},
-		{"a ", "A"},
-		{" A", "A"},
-		{"Write in:", ""},
-		{"Write-in:", ""},
-		{"Write-In", ""},
+		{"a", "contest", "A", true},
+		{"a ", "contest", "A", true},
+		{" A", "contest", "A", true},
+		{"Write in:", "contest", "", false},
+		{"Write-in:", "contest", "", false},
+		{"Write-In", "contest", "", false},
 	}
 
 	for _, testCase := range testCases {
-		if NormalizeVote(&CountingConfig{}, testCase.vote) != testCase.expect {
-			t.Errorf("Expected %v to be %v", testCase.vote, testCase.expect)
+		normalized, isCandidate := NormalizeVote(&CountingConfig{}, testCase.contest, testCase.vote)
+		if normalized != testCase.expectNormalized {
+			t.Errorf("Expected %v normalized to be %v", testCase.vote, testCase.expectNormalized)
+		}
+
+		if isCandidate != testCase.expectIsCandidate {
+			t.Errorf("Expected %v  isCandidate to be %v", testCase.vote, testCase.expectIsCandidate)
 		}
 	}
 }

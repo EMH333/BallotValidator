@@ -1,6 +1,9 @@
 package util
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // does the array contain the value?
 func Contains(s *[]string, e string) bool {
@@ -24,11 +27,13 @@ func RemoveDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func NormalizeVote(countingConfig *CountingConfig, vote string) string {
+// NormalizeVote tries to identify non-write-in candidates which were written in.
+// It will also identify if the vote is for a pre-registered candidate based on the contest being normalized
+func NormalizeVote(countingConfig *CountingConfig, contest, vote string) (string, bool) {
 	vote = strings.TrimSpace(vote)
 
 	if vote == "Write in:" || vote == "Write-in:" || vote == "Write-In" {
-		return ""
+		return "", false
 	}
 
 	vote = strings.ToUpper(vote)
@@ -39,21 +44,29 @@ func NormalizeVote(countingConfig *CountingConfig, vote string) string {
 
 	// replace write-in entries with the real candidate
 	// vote = strings.ReplaceAll(vote, "ALL CAPS FROM NORMALIZATION", "normal")
+	identifiedContests := []string{}
 	for _, candidate := range countingConfig.CandidatesPresident {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
+		identifiedContests = append(identifiedContests, "President")
 	}
 	for _, candidate := range countingConfig.CandidatesSFCChair {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
+		identifiedContests = append(identifiedContests, "SFC Chair")
 	}
 	for _, candidate := range countingConfig.CandidatesSFCAtLarge {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
+		identifiedContests = append(identifiedContests, "SFC At-large")
 	}
 	for _, candidate := range countingConfig.CandidatesGraduateSenate {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
+		identifiedContests = append(identifiedContests, "Graduate Senate")
 	}
 	for _, candidate := range countingConfig.CandidatesUndergraduateSenate {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
+		identifiedContests = append(identifiedContests, "Undergraduate Senate")
 	}
 
-	return vote
+	isRegisteredCandidate := slices.Contains(identifiedContests, contest)
+
+	return vote, isRegisteredCandidate
 }
