@@ -8,8 +8,8 @@ import (
 )
 
 func TestStepTwo(t *testing.T) {
-	var alreadyVoted []string = []string{"000", "056"}
-	var votes []util.Vote = []util.Vote{
+	var alreadyVoted = []string{"000", "056"}
+	var votes = []util.Vote{
 		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "123", ID: ""},
 		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "123", ID: ""}, //invalid double vote
 		{Raw: []string{"012", "123", "456"}, Timestamp: time.Now(), ONID: "056", ID: ""}, //invalid

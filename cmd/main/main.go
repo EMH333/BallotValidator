@@ -19,10 +19,10 @@ var alreadyVotedPrevious []string
 const numToPick int = 28 // how many winners to pick
 
 func main() {
-	var startDay int = 0      // what day are we starting on to process votes
-	var endDay int = startDay // what day are we ending on to process votes
-	var dataFile string = "ballotData.csv"
-	var countingConfigFile string = "counting_config.json"
+	var startDay = 0      // what day are we starting on to process votes
+	var endDay = startDay // what day are we ending on to process votes
+	var dataFile = "ballotData.csv"
+	var countingConfigFile = "counting_config.json"
 
 	// in the form of `program <day> <file_to_process>`
 	if len(os.Args) == 3 {

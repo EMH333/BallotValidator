@@ -52,7 +52,7 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	// read csv values using csv.Reader
 	//with modifications to handle the specifics of the valid votes list
@@ -60,8 +60,8 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	csvReader.Comma = ','
 	csvReader.TrimLeadingSpace = true
 
-	var incompleteVotes int = 0
-	var outOfTimeVotes int = 0
+	var incompleteVotes = 0
+	var outOfTimeVotes = 0
 
 	records, err := csvReader.ReadAll()
 	if err != nil {
@@ -172,7 +172,7 @@ func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string 
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	//with modifications to handle the specifics of the valid votes list
 	csvReader := csv.NewReader(f)
@@ -258,7 +258,7 @@ func StoreVotes(votes []Vote, filename string) {
 	if err != nil {
 		log.Fatalln("failed to open file", err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	w := csv.NewWriter(f)
 	defer w.Flush()
@@ -278,7 +278,7 @@ func StoreSummary(summary Summary, filename string) {
 		log.Fatal(err)
 	}
 	// remember to close the file
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	_, err = f.WriteString(summary.StepInfo + "\n")
 	if err != nil {
@@ -317,7 +317,7 @@ func StoreStringArrayFile(onids []string, filename string, sortList bool) {
 		log.Fatal(err)
 	}
 	// remember to close the file
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	if sortList {
 		//sort the alreadyVoted slice
@@ -339,7 +339,7 @@ func StoreNotYetVoted(notYetVoted []string, filename string) {
 		log.Fatal(err)
 	}
 	// remember to close the file
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	//sort the notYetVoted slice
 	sort.Strings(notYetVoted)
@@ -363,7 +363,7 @@ func LoadSeed() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	scanner := bufio.NewScanner(f)
 	scanner.Scan()
@@ -378,17 +378,17 @@ func LoadSeed() string {
 }
 
 func LoadStringArrayFile(fileName string) []string {
-	var strings []string
+	var stringsArr []string
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatalln("Error opening file", err)
 	}
-	defer file.Close()
+	defer file.Close() // nolint:errcheck // don't care about close
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		strings = append(strings, scanner.Text())
+		stringsArr = append(stringsArr, scanner.Text())
 	}
 
-	return strings
+	return stringsArr
 }

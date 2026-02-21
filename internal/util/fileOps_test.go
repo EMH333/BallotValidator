@@ -12,7 +12,7 @@ func writeFile(fileName string, data []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 	for _, record := range data {
 		_, err = f.WriteString(record + "\n")
 		if err != nil {
@@ -26,7 +26,7 @@ func TestLoadStringArrayFile(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir) // nolint:errcheck // don't care about not removing files
 
 	writeFile(dir+"/test.txt", []string{"a", "b", "c"})
 	writeFile(dir+"/test2.txt", []string{"a", "b", "c", "d, e"})
@@ -56,7 +56,7 @@ func TestLoadValidVoters(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir) // nolint:errcheck // don't care about removing
 
 	writeFile(dir+"/test.txt", []string{
 		"First Name,Last Name,Email,ONID,G_UG_STATUS",
@@ -96,7 +96,7 @@ func TestLoadAlreadyVoted(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir) // nolint:errcheck // don't care about removal
 
 	writeFile(dir+"/alreadyVoted-0-0.csv", []string{
 		"a@example.com",

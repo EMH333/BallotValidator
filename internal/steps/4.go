@@ -11,8 +11,8 @@ import (
 )
 
 func StepFour(previousVotes []string, votes []util.Vote, seed string, numberToPick int) ([]util.Vote, []string, util.Summary) {
-	var initialSizeCurrentVotes int = len(votes)
-	var initialSizePreviousVotes int = len(previousVotes)
+	var initialSizeCurrentVotes = len(votes)
+	var initialSizePreviousVotes = len(previousVotes)
 	var winners []string
 	var logMessages []string
 

@@ -8,7 +8,7 @@ import (
 )
 
 func TestCountPopularityVote(t *testing.T) {
-	var votes []util.Vote = []util.Vote{
+	var votes = []util.Vote{
 		{Raw: []string{"a,b,c,d,Write in:", "", ""}},
 		{Raw: []string{"a,b,c,d", "", ""}},
 		{Raw: []string{"Write in:", "e", "f"}},
@@ -20,10 +20,10 @@ func TestCountPopularityVote(t *testing.T) {
 		{Raw: []string{"d,Write in:,Write in:", "f", "e"}},
 	}
 
-	var results map[string]int = make(map[string]int)
+	var results = make(map[string]int)
 
 	for _, v := range votes {
-		countPopularityVote(&util.CountingConfig{}, &v, &results, 0, 2, 8)
+		countPopularityVote(&util.CountingConfig{}, &v, results, 0, 2, 8)
 	}
 
 	for k, v := range results {
@@ -40,17 +40,17 @@ func TestCountPopularityVote(t *testing.T) {
 }
 
 func TestMaxVotesPopularity(t *testing.T) {
-	var votes []util.Vote = []util.Vote{
+	var votes = []util.Vote{
 		{Raw: []string{"a,b,c", "", ""}, ONID: "a"},
 		{Raw: []string{"a,b,c,d", "", ""}, ONID: "b"}, //too many votes
 		{Raw: []string{"a, Write in:", "e", "f"}, ONID: "c"},
 		{Raw: []string{"a, Write-in:", "", "f"}, ONID: "d"},
 		{Raw: []string{"a,b, Write in:", "e", "f"}, ONID: "e"},
 	}
-	var results map[string]int = make(map[string]int)
+	var results = make(map[string]int)
 
 	for _, v := range votes {
-		countPopularityVote(&util.CountingConfig{}, &v, &results, 0, 2, 3)
+		countPopularityVote(&util.CountingConfig{}, &v, results, 0, 2, 3)
 	}
 
 	if results["a"] != 3 {

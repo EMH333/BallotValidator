@@ -82,7 +82,7 @@ func main() {
 	log.Println("Loading members...")
 	students := loadStudents("data/graduate-students.csv")
 
-	var orgs map[string]Organization = make(map[string]Organization)
+	var orgs = make(map[string]Organization)
 
 	for _, member := range students {
 		//create org if first time seeing it
@@ -124,7 +124,7 @@ func loadStudents(file string) []Member {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer f.Close() // nolint:errcheck // don't care about close
 
 	// read csv values using csv.Reader
 	//with modifications to handle the specifics of the valid votes list

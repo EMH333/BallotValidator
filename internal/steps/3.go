@@ -9,7 +9,7 @@ import (
 
 // returns valid, invaild, and summary
 func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVotersGraduate, validVotersUndergraduate *[]string) ([]util.Vote, []util.Vote, util.Summary) {
-	var initialSize int = len(votes)
+	var initialSize = len(votes)
 
 	var logMessages []string
 

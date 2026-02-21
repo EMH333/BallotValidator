@@ -9,7 +9,7 @@ import (
 
 // TODO create valid test for masking vote based on student status now that we can control valid offsets
 func TestStepThreeNoConfig(t *testing.T) {
-	var votes []util.Vote = []util.Vote{
+	var votes = []util.Vote{
 		{Raw: []string{"123", "456", "789"}, Timestamp: time.Now(), ONID: "abc", ID: ""},
 		{Raw: []string{"456", "789", "012"}, Timestamp: time.Now(), ONID: "efg", ID: ""},
 		{Raw: []string{"789", "012", "123"}, Timestamp: time.Now(), ONID: "hij", ID: ""},
@@ -32,7 +32,7 @@ func TestStepThreeNoConfig(t *testing.T) {
 }
 
 func TestStepThreeUndergradWrong(t *testing.T) {
-	var votes []util.Vote = []util.Vote{
+	var votes = []util.Vote{
 		{Raw: []string{"Undergraduate Student", "456", "789"}, Timestamp: time.Now(), ONID: "abc", ID: ""},
 		{Raw: []string{"Graduate Student", "789", "012"}, Timestamp: time.Now(), ONID: "efg", ID: ""},
 		{Raw: []string{"Undergraduate Student", "012", "123"}, Timestamp: time.Now(), ONID: "hij", ID: ""},
@@ -55,7 +55,7 @@ func TestStepThreeUndergradWrong(t *testing.T) {
 }
 
 func TestStepThreeGradWrong(t *testing.T) {
-	var votes []util.Vote = []util.Vote{
+	var votes = []util.Vote{
 		{Raw: []string{"Graduate Student", "456", "789"}, Timestamp: time.Now(), ONID: "abc", ID: ""},
 		{Raw: []string{"Graduate Student", "789", "012"}, Timestamp: time.Now(), ONID: "efg", ID: ""},
 		{Raw: []string{"Undergraduate Student", "012", "123"}, Timestamp: time.Now(), ONID: "hij", ID: ""},

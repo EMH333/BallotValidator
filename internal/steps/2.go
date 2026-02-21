@@ -9,7 +9,7 @@ import (
 
 // returns valid, invaild, onids that voted and summary
 func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vote, []string, util.Summary) {
-	var initialSize int = len(votes)
+	var initialSize = len(votes)
 
 	var logMessages []string
 

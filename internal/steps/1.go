@@ -8,7 +8,7 @@ import (
 )
 
 func StepOne(votes []util.Vote, validVotersGraduate, validVotersUndergraduate, validVotersUndefined *[]string) ([]util.Vote, []util.Vote, util.Summary) {
-	var initialSize int = len(votes)
+	var initialSize = len(votes)
 
 	var messageLog []string
 
