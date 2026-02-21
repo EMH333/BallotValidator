@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"slices"
 	"sort"
 
 	"ethohampton.com/BallotValidator/internal/steps"
@@ -55,7 +56,7 @@ func main() {
 	//now loop through all valid voters and see if they have already voted
 	var onidEmails []string
 	for _, v := range validVoters {
-		if !util.Contains(&alreadyVoted, v) {
+		if !slices.Contains(alreadyVoted, v) {
 			onidEmails = append(onidEmails, v)
 		}
 	}

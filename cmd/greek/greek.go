@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -73,7 +74,7 @@ func main() {
 		org := orgs[member.Organization]
 
 		//see if member already has voted
-		if util.Contains(&alreadyVoted, member.ONID) {
+		if slices.Contains(alreadyVoted, member.ONID) {
 			org.Voted++
 		}
 
@@ -154,8 +155,8 @@ func loadMembers(file string) []Member {
 }
 
 func trimStringFromWord(s, word string) string {
-	if idx := strings.Index(s, word); idx != -1 {
-		return s[:idx]
+	if before, _, ok := strings.Cut(s, word); ok {
+		return before
 	}
 	return s
 }

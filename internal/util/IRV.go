@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"log"
+	"maps"
 	"strconv"
 )
 
@@ -44,10 +45,8 @@ func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []s
 		logMessages = append(logMessages, "Number of ballots remaining this round: "+fmt.Sprint(ballotsCountedThisRound), "----------------------------------------------------")
 
 		//copy candidateVotes to a new map so we can delete entries as we print them
-		var candidateVotesCopy map[string]int = make(map[string]int)
-		for candidate, votes := range candidateVotes {
-			candidateVotesCopy[candidate] = votes
-		}
+		var candidateVotesCopy map[string]int = make(map[string]int, len(candidateVotes))
+		maps.Copy(candidateVotesCopy, candidateVotes)
 
 		//print candidates in order of votes
 		for len(candidateVotesCopy) > 0 {

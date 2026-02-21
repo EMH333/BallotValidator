@@ -2,6 +2,7 @@ package steps
 
 import (
 	"log"
+	"slices"
 
 	"ethohampton.com/BallotValidator/internal/util"
 )
@@ -18,7 +19,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 	for _, v := range votes {
 		beginningColumns := len(v.Raw)
 
-		if util.Contains(validVotersGraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Graduate Student" {
+		if slices.Contains(*validVotersGraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Graduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]
@@ -26,7 +27,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndex-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
 			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+v.Raw[countingConfig.StepThreeChoiceIndex])
-		} else if util.Contains(validVotersUndergraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Undergraduate Student" {
+		} else if slices.Contains(*validVotersUndergraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Undergraduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]

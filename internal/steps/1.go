@@ -2,6 +2,7 @@ package steps
 
 import (
 	"log"
+	"slices"
 
 	"ethohampton.com/BallotValidator/internal/util"
 )
@@ -15,11 +16,11 @@ func StepOne(votes []util.Vote, validVotersGraduate, validVotersUndergraduate, v
 	var invalidVotes []util.Vote
 
 	for _, v := range votes {
-		if util.Contains(validVotersGraduate, v.ONID) {
+		if slices.Contains(*validVotersGraduate, v.ONID) {
 			validVotes = append(validVotes, v)
-		} else if util.Contains(validVotersUndergraduate, v.ONID) {
+		} else if slices.Contains(*validVotersUndergraduate, v.ONID) {
 			validVotes = append(validVotes, v)
-		} else if util.Contains(validVotersUndefined, v.ONID) {
+		} else if slices.Contains(*validVotersUndefined, v.ONID) {
 			validVotes = append(validVotes, v)
 		} else {
 			invalidVotes = append(invalidVotes, v)

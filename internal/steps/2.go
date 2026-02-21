@@ -2,11 +2,12 @@ package steps
 
 import (
 	"log"
+	"slices"
 
 	"ethohampton.com/BallotValidator/internal/util"
 )
 
-//returns valid, invaild, onids that voted and summary
+// returns valid, invaild, onids that voted and summary
 func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vote, []string, util.Summary) {
 	var initialSize int = len(votes)
 
@@ -17,7 +18,7 @@ func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vot
 	var votedToday []string
 
 	for _, v := range votes {
-		if util.Contains(alreadyVoted, v.ONID) || util.Contains(&votedToday, v.ONID) {
+		if slices.Contains(*alreadyVoted, v.ONID) || slices.Contains(votedToday, v.ONID) {
 			invalidVotes = append(invalidVotes, v)
 			logMessages = append(logMessages, "Invalid vote from "+v.ONID+" with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
 		} else {

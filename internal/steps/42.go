@@ -3,6 +3,7 @@ package steps
 import (
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"strings"
 
@@ -65,7 +66,7 @@ func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, p
 		}
 	}
 
-	for i := 0; i < numWriteins; i++ {
+	for i := range numWriteins {
 		wi := vote.Raw[initialPosition+1+i]
 		if wi != "" {
 			//TODO seperate commas here before normalizing votes
@@ -102,9 +103,7 @@ func writeMultipleVoteResults(results *map[string]int, filename string) {
 	//print results in order of value
 	//resultsCopy results to a new map so we can delete entries
 	var resultsCopy map[string]int = make(map[string]int)
-	for k, v := range *results {
-		resultsCopy[k] = v
-	}
+	maps.Copy(resultsCopy, *results)
 
 	for len(resultsCopy) > 0 {
 		var maxNum int = 0

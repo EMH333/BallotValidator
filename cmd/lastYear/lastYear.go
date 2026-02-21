@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"slices"
 	"sort"
 
 	"ethohampton.com/BallotValidator/internal/steps"
@@ -60,7 +61,7 @@ func main() {
 	//if they haven't voted yet and they voted last year, add them to the list
 	var onidEmails []string
 	for _, v := range validVoters {
-		if !util.Contains(&alreadyVoted, v) && util.Contains(&lastYear, v) {
+		if !slices.Contains(alreadyVoted, v) && slices.Contains(lastYear, v) {
 			onidEmails = append(onidEmails, v)
 		}
 	}

@@ -2,16 +2,6 @@ package util
 
 import "strings"
 
-// does the array contain the value?
-func Contains(s *[]string, e string) bool {
-	for _, a := range *s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
 func RemoveDuplicateStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
 	list := []string{}

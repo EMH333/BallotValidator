@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 
@@ -91,7 +92,7 @@ func main() {
 		org := orgs[member.Organization]
 
 		//see if member already has voted
-		if util.Contains(&alreadyVoted, member.ONID) {
+		if slices.Contains(alreadyVoted, member.ONID) {
 			org.Voted++
 		}
 

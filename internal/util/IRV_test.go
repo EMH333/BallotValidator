@@ -2,6 +2,7 @@ package util
 
 import (
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -78,7 +79,7 @@ func TestOverallIRV(t *testing.T) {
 
 	for _, tc := range testCases {
 		logMessages := RunIRV(&CountingConfig{}, tc.votes, tc.candidates, len(tc.candidates), 0)
-		if !Contains(&logMessages, tc.winner) {
+		if !slices.Contains(logMessages, tc.winner) {
 			t.Errorf("Expected %s, got:\n%s\n\n", tc.winner, strings.Join(logMessages, "\n"))
 		}
 	}
