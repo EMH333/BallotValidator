@@ -43,10 +43,10 @@ type CountingConfig struct {
 	TallySFCAtLargeWritinsCount int
 
 	TallyPresidentOptionsIndex int
-	TallyPresidentOptionsCount int // number of presidential candidates
+	TallyPresidentOptionsCount int // number of presidential candidates, derived from CandidatesPresident
 
 	TallySFCChairOptionsIndex int
-	TallySFCChairOptionsCount int // number of SFC Chair candidates
+	TallySFCChairOptionsCount int // number of SFC Chair candidates, derived from CandidatesSFCChair
 
 	// number of winners
 	TallyUndergraduateSenateWinners int
@@ -73,6 +73,9 @@ func LoadCountingConfig(location string) CountingConfig {
 	if err != nil {
 		log.Fatal("Error during Unmarshal(): ", err)
 	}
+
+	payload.TallyPresidentOptionsCount = len(payload.CandidatesPresident)
+	payload.TallySFCChairOptionsCount = len(payload.CandidatesSFCChair)
 
 	return payload
 }
