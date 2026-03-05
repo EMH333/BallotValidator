@@ -23,6 +23,9 @@ func NormalizeVote(countingConfig *CountingConfig, vote string) string {
 
 	vote = strings.ToUpper(vote)
 
+	// normalize pres/vp candidates into same form as ballot
+	vote = strings.ReplaceAll(vote, " & ", " and ")
+
 	//TODO add removal of entrys found to be invalid
 	//TODO add subsitution for valid but ill-formed entrys
 	//both should happen after the trim/upper
