@@ -197,12 +197,21 @@ func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string 
 
 		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
 		if rec[countingConfig.ValidVotersStatusIndex] == indicator {
-			//confirm it is an email
-			if !strings.Contains(rec[countingConfig.ValidVotersEmailIndex], "@") {
-				log.Fatalf("ONID is not an email address: %s\n", rec[countingConfig.ValidVotersEmailIndex])
+			email := rec[countingConfig.ValidVotersEmailIndex]
+			// it is technically possible for someone not to have an email
+			// if they vote, then will need to handle as special case
+			if email == "" {
+				log.Printf("Found valid voter with empty email: %s", rec[0])
+				continue
 			}
 
-			voters = append(voters, rec[countingConfig.ValidVotersEmailIndex])
+			//confirm it is an email
+			if !strings.Contains(email, "@") {
+				log.Printf("Entire line: %v\n", rec)
+				log.Fatalf("ONID is not an email address: %s\n", email)
+			}
+
+			voters = append(voters, email)
 		}
 
 	}
