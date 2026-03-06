@@ -100,6 +100,7 @@ func main() {
 	util.StoreSummary(oneSummary, "1-summary-"+dayToDayFormat+".txt")
 	log.Println("Step 1: Invalid votes:", oneSummary.Invalid)
 	log.Println("Step 1: Valid votes:", oneSummary.Valid)
+	votes = []util.Vote{} // nolint:ineffassign,staticcheck // should not be used beyond this point
 
 	// step two: valid voter
 	log.Println()
@@ -111,6 +112,7 @@ func main() {
 	util.StoreStringArrayFile(alreadyVotedToday, "alreadyVoted-"+dayToDayFormat+".csv", true)
 	log.Println("Step 2: Invalid votes:", twoSummary.Invalid)
 	log.Println("Step 2: Valid votes:", twoSummary.Valid)
+	validPostOne = []util.Vote{} // nolint:ineffassign,staticcheck // should not be used beyond this point
 
 	// step three: grad/undergrad
 	log.Println()
@@ -121,6 +123,7 @@ func main() {
 	util.StoreSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
 	log.Println("Step 3: Modified votes:", threeSummary.Invalid)
 	log.Println("Step 3: Valid votes:", threeSummary.Valid)
+	validPostTwo = []util.Vote{} // nolint:ineffassign,staticcheck // should not be used beyond this point
 
 	// step four: Incentives
 	log.Println()
@@ -131,10 +134,24 @@ func main() {
 	util.StoreStringArrayFile(winners, "incentive-winners-"+dayToDayFormat+".csv", false)
 	log.Println("Step 4: Valid votes:", twoSummary.Valid)
 	log.Println("Step 4: Selected winners:", len(winners))
+	validPostThree = []util.Vote{} // nolint:ineffassign,staticcheck // should not be used beyond this point
+
+	// cure
+	// For students only given the option to select one SFC At-Large candidate
+	log.Println()
+	log.Println("Step 5: Cure SFC At-Large")
+	postCure, cureInvalidVotes, curedBallotSummary, cureSummary := steps.StepCure(&coutingConfig, postFour, "data/ballots/SFCAL-Mar-6-Final.csv", "data/validVotersSfcal.csv")
+	util.StoreVotes(postCure, "c-valid-"+dayToDayFormat+".csv")
+	util.StoreVotes(cureInvalidVotes, "c-modified-"+dayToDayFormat+".csv")
+	util.StoreStringArrayFile(curedBallotSummary, "c-summary-"+dayToDayFormat+".csv", false)
+	util.StoreSummary(cureSummary, "c-summary-"+dayToDayFormat+".txt")
+	log.Println("Step 5: Modified votes:", cureSummary.Invalid)
+	log.Println("Step 5: Valid votes:", cureSummary.Valid)
+	postFour = []util.Vote{} // nolint:ineffassign,staticcheck // should not be used beyond this point
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
-		steps.StepFourtyTwo(&coutingConfig, validPostTwo, "output/results")
+		steps.StepFourtyTwo(&coutingConfig, postCure, "output/results")
 	} else {
 		log.Println("Not running step 42, only one day")
 		log.Println("Adding already voted to the already voted data directory")

@@ -88,6 +88,19 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 			continue
 		}
 
+		id := rec[countingConfig.ImportID]
+		if !strings.HasPrefix(rec[countingConfig.ImportID], "R_") {
+			log.Fatalf("Response ID is not valid: %+v\n", rec)
+		}
+
+		//make sure it is a complete row
+		if !strings.EqualFold(rec[countingConfig.ImportComplete], "TRUE") {
+			//log.Printf("Vote is not complete: %+v\n", rec)
+			log.Printf("Vote is not complete from %s: %+v\n", rec[countingConfig.ImportONID], rec[0:countingConfig.ImportComplete+2])
+			incompleteVotes++
+			continue
+		}
+
 		timestamp, err := time.ParseInLocation(countingConfig.BallotTimeFormat, rec[countingConfig.ImportTimestamp], ELECTION_TIMEZONE) //"1/2/2006 15:04" //2/14/2022 9:10
 		if err != nil {
 			log.Fatal(err)
@@ -95,7 +108,7 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 
 		//make sure it is only reading the correct day
 		if timestamp.Before(validStartTime) || timestamp.After(validEndTime) {
-			//log.Printf("Response before or after valid times: %+v\n", rec)
+			log.Printf("Response before or after valid times: %+v\n", rec)
 			outOfTimeVotes++
 			continue
 		}
@@ -108,19 +121,6 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 
 		if strings.Contains(strings.Split(ONID, "@")[0], ".") {
 			log.Fatalf("ONID should not contain a dot: %s\n", ONID)
-		}
-
-		//make sure it is a complete row
-		if !strings.EqualFold(rec[countingConfig.ImportComplete], "TRUE") {
-			//log.Printf("Vote is not complete: %+v\n", rec)
-			log.Printf("Vote is not complete from %s: %+v\n", rec[countingConfig.ImportONID], rec[0:countingConfig.ImportComplete+2])
-			incompleteVotes++
-			continue
-		}
-
-		id := rec[countingConfig.ImportID]
-		if !strings.HasPrefix(rec[countingConfig.ImportID], "R_") {
-			log.Fatalf("Response ID is not valid: %+v\n", rec)
 		}
 
 		//append rec to votes
