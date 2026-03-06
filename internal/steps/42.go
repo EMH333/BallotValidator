@@ -18,6 +18,7 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 	}
 
 	writeInThreshold := int(math.Ceil(float64(len(votes)) * (countingConfig.WriteInThresholdPercent / 100)))
+	log.Println("Write-in threshold is:", writeInThreshold)
 
 	var undergradSenate = make(map[string]int, len(countingConfig.CandidatesUndergraduateSenate))
 	var graduateSenate = make(map[string]int, len(countingConfig.CandidatesGraduateSenate))

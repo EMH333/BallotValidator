@@ -1,6 +1,7 @@
 package util
 
 import (
+	"log"
 	"maps"
 	"slices"
 	"strings"
@@ -60,6 +61,7 @@ func RemoveIneligibleWriteins(resultsMap map[string]int, candidates []string, wr
 
 		// if write-in and meets threshold, then all good
 		if votes >= writeInThreshold {
+			log.Printf("Write-in candidate %s met threshold with %d votes\n", candidate, votes)
 			return false
 		}
 		return true
