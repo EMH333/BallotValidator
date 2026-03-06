@@ -78,7 +78,7 @@ func TestOverallIRV(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		logMessages := RunIRV(&CountingConfig{}, tc.votes, tc.candidates, len(tc.candidates), 0)
+		logMessages := RunIRV(&CountingConfig{}, tc.votes, 0, tc.candidates, len(tc.candidates), 0)
 		if !slices.Contains(logMessages, tc.winner) {
 			t.Errorf("Expected %s, got:\n%s\n\n", tc.winner, strings.Join(logMessages, "\n"))
 		}
@@ -125,7 +125,7 @@ func TestCreateIRVBallots(t *testing.T) {
 		"Invalid ballot: k",
 	}
 
-	ballots, logMessages := createIRVBallots(&CountingConfig{}, &votes, includedCandidates, numCandidates, offset)
+	ballots, logMessages := createIRVBallots(&CountingConfig{}, &votes, 0, includedCandidates, numCandidates, offset)
 
 	if len(ballots) != len(expectedBallots) {
 		t.Errorf("Expected %d ballots, got %d", len(expectedBallots), len(ballots))
@@ -145,6 +145,56 @@ func TestCreateIRVBallots(t *testing.T) {
 		if logMessages[i] != expectedLogMessage {
 			t.Errorf("Expected log message '%s', got '%s'", expectedLogMessage, logMessages[i])
 		}
+	}
+}
+
+func TestCreateIRVBallotsHandlingWriteins(t *testing.T) {
+	votes := []Vote{
+		{ID: "a", Raw: []string{"1", "2", "3", "", ""}},
+		{ID: "b", Raw: []string{"2", "1", "3", "", ""}},
+		{ID: "c", Raw: []string{"3", "2", "1", "", ""}},
+		{ID: "d", Raw: []string{"1", "", "", "2", "d"}},
+		{ID: "e", Raw: []string{"", "", "", "", ""}},
+		{ID: "f", Raw: []string{"", "", "", "1", "e"}},
+		{ID: "g", Raw: []string{"1", "", "3", "", ""}},
+		{ID: "h", Raw: []string{"", "", "", "1", "e"}},
+		{ID: "i", Raw: []string{"", "", "", "1", "e"}},
+		{ID: "j", Raw: []string{"", "", "", "1", "e"}},
+		{ID: "k", Raw: []string{"", "", "", "1", "e"}},
+	}
+
+	includedCandidates := []string{"a", "b", "c"}
+	numCandidates := len(includedCandidates)
+	offset := 0
+
+	expectedBallots := []IRVBallot{
+		{ID: "a", Choices: []string{"a", "b", "c", ""}},
+		{ID: "b", Choices: []string{"b", "a", "c", ""}},
+		{ID: "c", Choices: []string{"c", "b", "a", ""}},
+		{ID: "d", Choices: []string{"a", "", "", ""}},
+		{ID: "e", Choices: []string{"", "", "", ""}},
+		{ID: "f", Choices: []string{"E", "", "", ""}},
+		{ID: "g", Choices: []string{"a", "", "c", ""}},
+		{ID: "h", Choices: []string{"E", "", "", ""}},
+		{ID: "i", Choices: []string{"E", "", "", ""}},
+		{ID: "j", Choices: []string{"E", "", "", ""}},
+		{ID: "k", Choices: []string{"E", "", "", ""}},
+	}
+
+	ballots, logMessages := createIRVBallots(&CountingConfig{AutomaticWriteinHandling: true}, &votes, 3, includedCandidates, numCandidates, offset)
+
+	if len(ballots) != len(expectedBallots) {
+		t.Errorf("Expected %d ballots, got %d", len(expectedBallots), len(ballots))
+	}
+
+	for i, expectedBallot := range expectedBallots {
+		if !reflect.DeepEqual(ballots[i], expectedBallot) {
+			t.Errorf("Expected ballot %+v, got %+v", expectedBallot, ballots[i])
+		}
+	}
+
+	if len(logMessages) > 0 {
+		t.Errorf("Expected no log messages, got %v", len(logMessages))
 	}
 }
 

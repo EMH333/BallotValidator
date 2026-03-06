@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"math"
 	"os"
 	"strings"
 
@@ -15,6 +16,8 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 	if len(votes) == 0 {
 		log.Fatal("No votes to find results for")
 	}
+
+	writeInThreshold := int(math.Ceil(float64(len(votes)) * (countingConfig.WriteInThresholdPercent / 100)))
 
 	var undergradSenate = make(map[string]int, len(countingConfig.CandidatesUndergraduateSenate))
 	var graduateSenate = make(map[string]int, len(countingConfig.CandidatesGraduateSenate))
@@ -35,14 +38,20 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 	//log.Println("Counted Popularity Votes")
 
 	//presidental ticket
-	presidentResults := util.RunIRV(countingConfig, votes, countingConfig.CandidatesPresident, countingConfig.TallyPresidentOptionsCount, countingConfig.TallyPresidentOptionsIndex)
+	presidentResults := util.RunIRV(countingConfig, votes, writeInThreshold, countingConfig.CandidatesPresident, countingConfig.TallyPresidentOptionsCount, countingConfig.TallyPresidentOptionsIndex)
 
 	//SFC chair
-	sfcChairResults := util.RunIRV(countingConfig, votes, countingConfig.CandidatesSFCChair, countingConfig.TallySFCChairOptionsCount, countingConfig.TallySFCChairOptionsIndex)
+	sfcChairResults := util.RunIRV(countingConfig, votes, writeInThreshold, countingConfig.CandidatesSFCChair, countingConfig.TallySFCChairOptionsCount, countingConfig.TallySFCChairOptionsIndex)
 
 	_, err := os.Stat(outputDirname)
 	if os.IsNotExist(err) && os.Mkdir(outputDirname, 0o755) != nil {
 		log.Fatal("Could not create output directory", outputDirname)
+	}
+
+	if countingConfig.AutomaticWriteinHandling {
+		util.RemoveIneligibleWriteins(undergradSenate, countingConfig.CandidatesUndergraduateSenate, writeInThreshold)
+		util.RemoveIneligibleWriteins(graduateSenate, countingConfig.CandidatesGraduateSenate, writeInThreshold)
+		util.RemoveIneligibleWriteins(sfcAtLarge, countingConfig.CandidatesSFCAtLarge, writeInThreshold)
 	}
 
 	//write to senate file

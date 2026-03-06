@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"slices"
 	"strconv"
 )
 
@@ -21,7 +22,7 @@ type IRVBallot struct {
 	ID      string
 }
 
-func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []string, numCandidates, offset int) []string {
+func RunIRV(countingConfig *CountingConfig, votes []Vote, writeInThreshold int, includedCandidates []string, numCandidates, offset int) []string {
 	if len(votes) == 0 {
 		return []string{"No votes cast"}
 	}
@@ -29,7 +30,7 @@ func RunIRV(countingConfig *CountingConfig, votes []Vote, includedCandidates []s
 	var logMessages []string
 
 	//first process into ballots
-	ballots, createMessages := createIRVBallots(countingConfig, &votes, includedCandidates, numCandidates, offset)
+	ballots, createMessages := createIRVBallots(countingConfig, &votes, writeInThreshold, includedCandidates, numCandidates, offset)
 
 	logMessages = append(logMessages, createMessages...)
 	logMessages = append(logMessages, fmt.Sprint("Number of ballots: ", len(ballots)), "")
@@ -165,9 +166,10 @@ func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
 	return candidateVotes, ballotsCountedThisRound
 }
 
-func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
+func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, writeInThreshold int, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
 	var ballots []IRVBallot
 	var logMessages []string
+	allWriteInCandidates := make(map[string]int)
 	for _, vote := range *votes {
 		var ballot IRVBallot
 		ballot.ID = vote.ID
@@ -213,6 +215,9 @@ func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, includedCan
 
 				writeInName := NormalizeVote(countingConfig, includedCandidates, vote.Raw[offset+numCandidates+1])
 				ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
+
+				// track number of write-in votes for each candidate
+				allWriteInCandidates[writeInName]++
 			}
 		}
 
@@ -220,6 +225,25 @@ func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, includedCan
 			ballots = append(ballots, ballot)
 		} else {
 			logMessages = append(logMessages, "Invalid ballot: "+vote.ID)
+		}
+	}
+
+	if countingConfig.AutomaticWriteinHandling {
+		// remove all write in candidates which aren't eligible
+		RemoveIneligibleWriteins(allWriteInCandidates, includedCandidates, writeInThreshold)
+
+		// now loop through all votes and remove ineligible candidates
+		// TODO could be more efficent
+		for _, ballot := range ballots {
+			for i, candidate := range ballot.Choices {
+				_, isValidWritein := allWriteInCandidates[candidate]
+				if slices.Contains(includedCandidates, candidate) || isValidWritein {
+					continue
+				}
+
+				// remove ineligible write in
+				ballot.Choices[i] = ""
+			}
 		}
 	}
 

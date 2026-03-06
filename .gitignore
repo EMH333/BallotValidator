@@ -3,3 +3,4 @@ output/
 build/
 coverage*
 todo.txt
+perf.data*

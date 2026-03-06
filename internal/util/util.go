@@ -1,6 +1,10 @@
 package util
 
-import "strings"
+import (
+	"maps"
+	"slices"
+	"strings"
+)
 
 func RemoveDuplicateOrEmptyStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
@@ -45,4 +49,19 @@ func NormalizeVote(countingConfig *CountingConfig, candidates []string, vote str
 	}
 
 	return vote
+}
+
+func RemoveIneligibleWriteins(resultsMap map[string]int, candidates []string, writeInThreshold int) {
+	maps.DeleteFunc(resultsMap, func(candidate string, votes int) bool {
+		// all good if registered candidate
+		if slices.Contains(candidates, candidate) {
+			return false
+		}
+
+		// if write-in and meets threshold, then all good
+		if votes >= writeInThreshold {
+			return false
+		}
+		return true
+	})
 }

@@ -50,6 +50,11 @@ type CountingConfig struct {
 
 	TallyMeasureOptionsIndex int
 
+	// Should the tabulation automatically discard writeins which don't meet the threshold?
+	AutomaticWriteinHandling bool
+	// what is the write-in threshold
+	WriteInThresholdPercent float64
+
 	// number of winners
 	TallyUndergraduateSenateWinners int
 	TallyGraduateSenateWinners      int

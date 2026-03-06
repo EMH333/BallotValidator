@@ -23,6 +23,8 @@
     "TallyUndergraduateSenateWinners": 15,
     "TallyGraduateSenateWinners": 3,
     "TallySFCAtLargeWinners": 5,
+    "AutomaticWriteinHandling": true,
+    "WriteInThresholdPercent": 1.0,
     "CandidatesPresident": [
         "Muhammad Bajwa and Jasdip Singh",
         "Charlotte O'Brien and Zane Olivadotti-Peters",
