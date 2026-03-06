@@ -48,6 +48,8 @@ type CountingConfig struct {
 	TallySFCChairOptionsIndex int
 	TallySFCChairOptionsCount int // number of SFC Chair candidates, derived from CandidatesSFCChair
 
+	TallyMeasureOptionsIndex int
+
 	// number of winners
 	TallyUndergraduateSenateWinners int
 	TallyGraduateSenateWinners      int

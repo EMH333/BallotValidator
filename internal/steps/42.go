@@ -16,9 +16,10 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 		log.Fatal("No votes to find results for")
 	}
 
-	var undergradSenate = make(map[string]int)
-	var graduateSenate = make(map[string]int)
-	var sfcAtLarge = make(map[string]int)
+	var undergradSenate = make(map[string]int, len(countingConfig.CandidatesUndergraduateSenate))
+	var graduateSenate = make(map[string]int, len(countingConfig.CandidatesGraduateSenate))
+	var sfcAtLarge = make(map[string]int, len(countingConfig.CandidatesSFCAtLarge))
+	var measure = make(map[string]int, 2)
 
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
@@ -27,6 +28,9 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 
 		///////////////////SFC AT LARGE/////////////////////////////
 		countPopularityVote(countingConfig, &vote, sfcAtLarge, countingConfig.TallySFCAtLargeOptionsIndex, countingConfig.TallySFCAtLargeWritinsCount, countingConfig.TallySFCAtLargeWinners)
+
+		///////////////Ballot Measure///////////////////
+		countPopularityVote(countingConfig, &vote, measure, countingConfig.TallyMeasureOptionsIndex, 0, 1)
 	}
 	//log.Println("Counted Popularity Votes")
 
@@ -53,6 +57,9 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 
 	//write to SFC chair file
 	writeIRVResults(sfcChairResults, outputDirname+"/sfc-chair.txt")
+
+	// write ballot measure
+	writeMultipleVoteResults(measure, outputDirname+"/measure.csv")
 }
 
 func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, position map[string]int, initialPosition, numWriteins, maxVotes int) {
