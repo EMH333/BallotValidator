@@ -33,13 +33,14 @@ func TestNormalizeVote(t *testing.T) {
 		{"a", "A"},
 		{"a ", "A"},
 		{" A", "A"},
+		{"b", "b"},
 		{"Write in:", ""},
 		{"Write-in:", ""},
 		{"Write-In", ""},
 	}
 
 	for _, testCase := range testCases {
-		if NormalizeVote(&CountingConfig{}, testCase.vote) != testCase.expect {
+		if NormalizeVote(&CountingConfig{}, []string{"b"}, testCase.vote) != testCase.expect {
 			t.Errorf("Expected %v to be %v", testCase.vote, testCase.expect)
 		}
 	}

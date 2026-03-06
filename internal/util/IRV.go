@@ -211,7 +211,7 @@ func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, includedCan
 					validBallot = false
 				}
 
-				writeInName := NormalizeVote(countingConfig, vote.Raw[offset+numCandidates+1])
+				writeInName := NormalizeVote(countingConfig, includedCandidates, vote.Raw[offset+numCandidates+1])
 				ballot.Choices[rank-1] = writeInName //set the rank choice to the candidate
 			}
 		}

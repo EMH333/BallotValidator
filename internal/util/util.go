@@ -17,7 +17,7 @@ func RemoveDuplicateOrEmptyStr(strSlice []string) []string {
 	return list
 }
 
-func NormalizeVote(countingConfig *CountingConfig, vote string) string {
+func NormalizeVote(countingConfig *CountingConfig, candidates []string, vote string) string {
 	vote = strings.TrimSpace(vote)
 	vote = strings.ToUpper(vote)
 
@@ -36,19 +36,7 @@ func NormalizeVote(countingConfig *CountingConfig, vote string) string {
 
 	// replace write-in entries with the real candidate
 	// vote = strings.ReplaceAll(vote, "ALL CAPS FROM NORMALIZATION", "normal")
-	for _, candidate := range countingConfig.CandidatesPresident {
-		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-	}
-	for _, candidate := range countingConfig.CandidatesSFCChair {
-		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-	}
-	for _, candidate := range countingConfig.CandidatesSFCAtLarge {
-		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-	}
-	for _, candidate := range countingConfig.CandidatesGraduateSenate {
-		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-	}
-	for _, candidate := range countingConfig.CandidatesUndergraduateSenate {
+	for _, candidate := range candidates {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
 	}
 

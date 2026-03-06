@@ -23,14 +23,14 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 
 	for _, vote := range votes {
 		///////////////////SENATE/////////////////////////////
-		countPopularityVote(countingConfig, &vote, undergradSenate, countingConfig.TallyUndergradeSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyUndergraduateSenateWinners)
-		countPopularityVote(countingConfig, &vote, graduateSenate, countingConfig.TallyGraduateSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyGraduateSenateWinners)
+		countPopularityVote(countingConfig, countingConfig.CandidatesUndergraduateSenate, &vote, undergradSenate, countingConfig.TallyUndergradeSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyUndergraduateSenateWinners)
+		countPopularityVote(countingConfig, countingConfig.CandidatesGraduateSenate, &vote, graduateSenate, countingConfig.TallyGraduateSenateOptionsIndex, countingConfig.TallySenateWritinsCount, countingConfig.TallyGraduateSenateWinners)
 
 		///////////////////SFC AT LARGE/////////////////////////////
-		countPopularityVote(countingConfig, &vote, sfcAtLarge, countingConfig.TallySFCAtLargeOptionsIndex, countingConfig.TallySFCAtLargeWritinsCount, countingConfig.TallySFCAtLargeWinners)
+		countPopularityVote(countingConfig, countingConfig.CandidatesSFCAtLarge, &vote, sfcAtLarge, countingConfig.TallySFCAtLargeOptionsIndex, countingConfig.TallySFCAtLargeWritinsCount, countingConfig.TallySFCAtLargeWinners)
 
 		///////////////Ballot Measure///////////////////
-		countPopularityVote(countingConfig, &vote, measure, countingConfig.TallyMeasureOptionsIndex, 0, 1)
+		countPopularityVote(countingConfig, []string{"Yes", "No"}, &vote, measure, countingConfig.TallyMeasureOptionsIndex, 0, 1)
 	}
 	//log.Println("Counted Popularity Votes")
 
@@ -62,20 +62,20 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 	writeMultipleVoteResults(measure, outputDirname+"/measure.csv")
 }
 
-func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, position map[string]int, initialPosition, numWriteins, maxVotes int) {
+func countPopularityVote(countingConfig *util.CountingConfig, candidates []string, vote *util.Vote, position map[string]int, initialPosition, numWriteins, maxVotes int) {
 	rawVotes := strings.Split(vote.Raw[initialPosition], ",")
 	var votes []string
 	// clean up the write in entries
 	for _, vote := range rawVotes {
 		vote = strings.TrimSpace(vote)
-		votes = append(votes, util.NormalizeVote(countingConfig, vote))
+		votes = append(votes, util.NormalizeVote(countingConfig, candidates, vote))
 	}
 
 	for i := range numWriteins {
 		wi := vote.Raw[initialPosition+1+i]
 		if wi != "" {
 			//TODO seperate commas here before normalizing votes
-			votes = append(votes, util.NormalizeVote(countingConfig, wi))
+			votes = append(votes, util.NormalizeVote(countingConfig, candidates, wi))
 		}
 	}
 
