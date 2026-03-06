@@ -2,10 +2,13 @@ package util
 
 import "strings"
 
-func RemoveDuplicateStr(strSlice []string) []string {
+func RemoveDuplicateOrEmptyStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
 	list := []string{}
 	for _, item := range strSlice {
+		if item == "" {
+			continue
+		}
 		if _, value := allKeys[item]; !value {
 			allKeys[item] = true
 			list = append(list, item)
@@ -16,12 +19,11 @@ func RemoveDuplicateStr(strSlice []string) []string {
 
 func NormalizeVote(countingConfig *CountingConfig, vote string) string {
 	vote = strings.TrimSpace(vote)
+	vote = strings.ToUpper(vote)
 
-	if vote == "Write in:" || vote == "Write-in:" || vote == "Write-In" {
+	if vote == "WRITE IN:" || vote == "WRITE-IN:" || vote == "WRITE-IN" || vote == "WRITE IN" {
 		return ""
 	}
-
-	vote = strings.ToUpper(vote)
 
 	// normalize pres/vp candidates into same form as ballot
 	vote = strings.ReplaceAll(vote, " & ", " and ")

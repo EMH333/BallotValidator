@@ -12,7 +12,7 @@ func TestRemoveDuplicateStr(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		results := RemoveDuplicateStr(testCase.slice)
+		results := RemoveDuplicateOrEmptyStr(testCase.slice)
 		if len(results) != len(testCase.expect) {
 			t.Errorf("Expected length %d to be %d", len(results), len(testCase.expect))
 		}

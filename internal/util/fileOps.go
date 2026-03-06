@@ -256,7 +256,7 @@ func LoadAlreadyVoted(countingConfig *CountingConfig, upToDay int64) []string {
 		alreadyVoted = append(alreadyVoted, LoadStringArrayFile(folder+file.Name())...)
 	}
 
-	alreadyVoted = RemoveDuplicateStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)
+	alreadyVoted = RemoveDuplicateOrEmptyStr(alreadyVoted) //make sure we don't have any duplicates (though it doesn't really matter)
 
 	return alreadyVoted
 }

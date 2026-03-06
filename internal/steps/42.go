@@ -68,9 +68,7 @@ func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, p
 	// clean up the write in entries
 	for _, vote := range rawVotes {
 		vote = strings.TrimSpace(vote)
-		if vote != "Write in:" && vote != "Write-in:" && vote != "Write-In" {
-			votes = append(votes, vote)
-		}
+		votes = append(votes, util.NormalizeVote(countingConfig, vote))
 	}
 
 	for i := range numWriteins {
@@ -81,7 +79,7 @@ func countPopularityVote(countingConfig *util.CountingConfig, vote *util.Vote, p
 		}
 	}
 
-	votes = util.RemoveDuplicateStr(votes)
+	votes = util.RemoveDuplicateOrEmptyStr(votes)
 
 	// can't pick more than the max for these positions
 	if len(votes) > maxVotes {
