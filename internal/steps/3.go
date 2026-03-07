@@ -2,7 +2,7 @@ package steps
 
 import (
 	"log"
-	"slices"
+	"maps"
 
 	"ethohampton.com/BallotValidator/internal/util"
 )
@@ -11,8 +11,11 @@ import (
 func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVotersGraduate, validVotersUndergraduate *[]string) ([]util.Vote, []util.Vote, util.Summary) {
 	var initialSize = len(votes)
 
-	var logMessages []string
+	// put into maps for performance and readability
+	graduates := maps.Collect(util.StringSliceToMap(*validVotersGraduate))
+	undergrads := maps.Collect(util.StringSliceToMap(*validVotersUndergraduate))
 
+	var logMessages []string
 	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
 
@@ -21,7 +24,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 
 		choice := v.Raw[countingConfig.StepThreeChoiceIndex]
 
-		if choice != "Graduate Student" && slices.Contains(*validVotersGraduate, v.ONID) {
+		if _, isGraduate := graduates[v.ONID]; isGraduate && choice != "Graduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]
@@ -29,7 +32,7 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndexExclusive-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
 			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+choice)
-		} else if choice != "Undergraduate Student" && slices.Contains(*validVotersUndergraduate, v.ONID) {
+		} else if _, isUndergrad := undergrads[v.ONID]; isUndergrad && choice != "Undergraduate Student" {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]

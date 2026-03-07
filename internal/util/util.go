@@ -1,6 +1,7 @@
 package util
 
 import (
+	"iter"
 	"log"
 	"maps"
 	"slices"
@@ -24,29 +25,23 @@ func RemoveDuplicateOrEmptyStr(strSlice []string) []string {
 
 func NormalizeVote(countingConfig *CountingConfig, candidates []string, vote string) string {
 	vote = strings.TrimSpace(vote)
-	vote = strings.ToUpper(vote)
 
-	if vote == "WRITE IN:" || vote == "WRITE-IN:" || vote == "WRITE-IN" || vote == "WRITE IN" {
+	if strings.EqualFold(vote, "WRITE IN:") || strings.EqualFold(vote, "WRITE-IN:") ||
+		strings.EqualFold(vote, "WRITE-IN") || strings.EqualFold(vote, "WRITE IN") {
 		return ""
 	}
 
 	// normalize pres/vp candidates into same form as ballot
-	vote = strings.ReplaceAll(vote, " & ", " and ")
-
-	crossCheck := vote
+	vote = strings.Replace(vote, " & ", " and ", 1)
 
 	// replace write-in entries with the real candidate
-	// vote = strings.ReplaceAll(vote, "ALL CAPS FROM NORMALIZATION", "normal")
 	for _, candidate := range candidates {
-		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-
-		// early return if normalized
-		if vote != crossCheck {
-			return vote
+		if strings.EqualFold(vote, candidate) {
+			return candidate
 		}
 	}
 
-	return vote
+	return strings.ToUpper(vote)
 }
 
 func RemoveIneligibleWriteins(resultsMap map[string]int, candidates []string, writeInThreshold int) {
@@ -63,4 +58,14 @@ func RemoveIneligibleWriteins(resultsMap map[string]int, candidates []string, wr
 		}
 		return true
 	})
+}
+
+func StringSliceToMap(sl []string) iter.Seq2[string, struct{}] {
+	return func(yield func(string, struct{}) bool) {
+		for _, k := range sl {
+			if !yield(k, struct{}{}) {
+				return
+			}
+		}
+	}
 }

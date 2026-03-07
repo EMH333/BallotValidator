@@ -2,6 +2,7 @@ package steps
 
 import (
 	"log"
+	"maps"
 	"slices"
 
 	"ethohampton.com/BallotValidator/internal/util"
@@ -15,15 +16,15 @@ func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vot
 
 	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
-	var votedToday []string
+	votedToday := make(map[string]bool, len(votes)-len(*alreadyVoted))
 
 	for _, v := range votes {
-		if slices.Contains(*alreadyVoted, v.ONID) || slices.Contains(votedToday, v.ONID) {
+		if votedToday[v.ONID] || slices.Contains(*alreadyVoted, v.ONID) {
 			invalidVotes = append(invalidVotes, v)
 			logMessages = append(logMessages, "Invalid vote from "+v.ONID+" with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05"))
 		} else {
 			validVotes = append(validVotes, v)
-			votedToday = append(votedToday, v.ONID)
+			votedToday[v.ONID] = true
 		}
 	}
 
@@ -31,7 +32,7 @@ func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vot
 		log.Fatal("Step 2 vote counts don't match")
 	}
 
-	return validVotes, invalidVotes, votedToday, util.Summary{
+	return validVotes, invalidVotes, slices.Collect(maps.Keys(votedToday)), util.Summary{
 		StepInfo:  "Step 2: Dedupe",
 		Processed: len(validVotes) + len(invalidVotes),
 		Valid:     len(validVotes),

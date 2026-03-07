@@ -2,11 +2,9 @@ package util
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"sort"
@@ -165,7 +163,7 @@ func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string
 	return nil
 }
 
-func LoadFileToReader(filename string) io.Reader {
+func LoadValidVoterCSV(filename string) [][]string {
 	//open file
 	f, err := os.Open(filename)
 	if err != nil {
@@ -173,41 +171,37 @@ func LoadFileToReader(filename string) io.Reader {
 	}
 	defer f.Close() // nolint:errcheck // don't care about close
 
-	contents, err := io.ReadAll(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return bytes.NewBuffer(contents)
-}
-
-func LoadValidVoters(countingConfig *CountingConfig, buf io.Reader, indicator string) []string {
-	var voters []string
-
 	//with modifications to handle the specifics of the valid votes list
-	csvReader := csv.NewReader(buf)
+	csvReader := csv.NewReader(f)
 	//csvReader.Comma = '\t'
 	csvReader.TrimLeadingSpace = true
 
-	//skip the first row which is headers
-	// and check it doesn't contain an @ (which could be an email)
-	first, err := csvReader.Read()
-	if err != nil || strings.Contains(first[countingConfig.ValidVotersEmailIndex], "@") {
+	records, err := csvReader.ReadAll()
+	if err != nil {
 		log.Fatal(err)
 	}
+	return records
+}
 
-	for {
-		rec, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
+func LoadValidVoters(countingConfig *CountingConfig, records [][]string, indicator string) []string {
+	var voters []string
+
+	for idx, rec := range records {
+		email := rec[countingConfig.ValidVotersEmailIndex]
+
+		//skip the first row which is headers
+		// and check it doesn't contain an @ (which could be an email)
+		if idx == 0 {
+			if strings.Contains(rec[countingConfig.ValidVotersEmailIndex], "@") {
+				log.Fatal("First row of valid voters contains an email address")
+			} else {
+				continue
+			}
 		}
 
 		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
-		if rec[countingConfig.ValidVotersStatusIndex] == indicator || indicator == "" {
-			email := rec[countingConfig.ValidVotersEmailIndex]
+		if indicator == "" || rec[countingConfig.ValidVotersStatusIndex] == indicator {
+
 			// it is technically possible for someone not to have an email
 			// if they vote, then will need to handle as special case
 			if email == "" {

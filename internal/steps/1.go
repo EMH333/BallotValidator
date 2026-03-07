@@ -2,7 +2,7 @@ package steps
 
 import (
 	"log"
-	"slices"
+	"maps"
 
 	"ethohampton.com/BallotValidator/internal/util"
 )
@@ -15,12 +15,14 @@ func StepOne(votes []util.Vote, validVotersGraduate, validVotersUndergraduate, v
 	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
 
+	// put into a map for performance (plus its just more natural)
+	allValidVoters := make(map[string]struct{}, len(*validVotersUndergraduate)+len(*validVotersGraduate)+len(*validVotersUndefined))
+	maps.Insert(allValidVoters, util.StringSliceToMap(*validVotersUndergraduate))
+	maps.Insert(allValidVoters, util.StringSliceToMap(*validVotersGraduate))
+	maps.Insert(allValidVoters, util.StringSliceToMap(*validVotersUndefined))
+
 	for _, v := range votes {
-		if slices.Contains(*validVotersUndergraduate, v.ONID) {
-			validVotes = append(validVotes, v)
-		} else if slices.Contains(*validVotersGraduate, v.ONID) {
-			validVotes = append(validVotes, v)
-		} else if slices.Contains(*validVotersUndefined, v.ONID) {
+		if _, ok := allValidVoters[v.ONID]; ok {
 			validVotes = append(validVotes, v)
 		} else {
 			invalidVotes = append(invalidVotes, v)

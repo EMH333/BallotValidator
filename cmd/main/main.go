@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strconv"
@@ -71,17 +69,11 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	//TODO eventually handle this better
-	validVotersFile := util.LoadFileToReader(countingConfig.ValidVotersFile)
-	validVotersFileBytes, err := io.ReadAll(validVotersFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	validVotersFileContents := string(validVotersFileBytes)
-	validVotersGraduate = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "G")
-	validVotersUndergrad = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "UG")
-	validVotersUndefined = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "INTO non-UG/G")
-	validVotersTotal := len(util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), ""))
+	validVotersFile := util.LoadValidVoterCSV(countingConfig.ValidVotersFile)
+	validVotersGraduate = util.LoadValidVoters(&countingConfig, validVotersFile, "G")
+	validVotersUndergrad = util.LoadValidVoters(&countingConfig, validVotersFile, "UG")
+	validVotersUndefined = util.LoadValidVoters(&countingConfig, validVotersFile, "INTO non-UG/G")
+	validVotersTotal := len(util.LoadValidVoters(&countingConfig, validVotersFile, ""))
 	validVotersTotalActual := len(validVotersGraduate) + len(validVotersUndergrad) + len(validVotersUndefined)
 	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
 	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
