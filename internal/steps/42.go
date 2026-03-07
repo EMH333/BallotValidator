@@ -74,10 +74,9 @@ func StepFourtyTwo(countingConfig *util.CountingConfig, votes []util.Vote, outpu
 
 func countPopularityVote(countingConfig *util.CountingConfig, candidates []string, vote *util.Vote, position map[string]int, initialPosition, numWriteins, maxVotes int) {
 	rawVotes := strings.Split(vote.Raw[initialPosition], ",")
-	var votes []string
+	votes := make([]string, 0, len(rawVotes))
 	// clean up the write in entries
 	for _, vote := range rawVotes {
-		vote = strings.TrimSpace(vote)
 		votes = append(votes, util.NormalizeVote(countingConfig, candidates, vote))
 	}
 
@@ -98,9 +97,7 @@ func countPopularityVote(countingConfig *util.CountingConfig, candidates []strin
 	}
 
 	for _, v := range votes {
-		if v != "" {
-			position[v]++
-		}
+		position[v]++
 	}
 }
 

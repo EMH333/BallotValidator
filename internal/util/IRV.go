@@ -167,7 +167,7 @@ func countIRVVotes(ballots *[]IRVBallot) (map[string]int, int) {
 }
 
 func createIRVBallots(countingConfig *CountingConfig, votes *[]Vote, writeInThreshold int, includedCandidates []string, numCandidates, offset int) ([]IRVBallot, []string) {
-	var ballots []IRVBallot
+	ballots := make([]IRVBallot, 0, len(*votes))
 	var logMessages []string
 	allWriteInCandidates := make(map[string]int)
 	for _, vote := range *votes {

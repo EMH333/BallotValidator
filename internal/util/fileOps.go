@@ -2,6 +2,7 @@ package util
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -45,8 +46,6 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 		validEndTime = newEndTime
 	}
 
-	var votes []Vote
-
 	//load csv file
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -67,6 +66,8 @@ func LoadVotesCSV(countingConfig *CountingConfig, fileName string, startDay, end
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	votes := make([]Vote, 0, len(records))
 
 	for idx, rec := range records {
 		if idx == 1 {
@@ -164,18 +165,27 @@ func candidateColumnIndexValidation(countingConfig *CountingConfig, rec []string
 	return nil
 }
 
-func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string {
-	var voters []string
-
-	//open csv file
-	f, err := os.Open(countingConfig.ValidVotersFile)
+func LoadFileToReader(filename string) io.Reader {
+	//open file
+	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close() // nolint:errcheck // don't care about close
 
+	contents, err := io.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return bytes.NewBuffer(contents)
+}
+
+func LoadValidVoters(countingConfig *CountingConfig, buf io.Reader, indicator string) []string {
+	var voters []string
+
 	//with modifications to handle the specifics of the valid votes list
-	csvReader := csv.NewReader(f)
+	csvReader := csv.NewReader(buf)
 	//csvReader.Comma = '\t'
 	csvReader.TrimLeadingSpace = true
 
@@ -196,7 +206,7 @@ func LoadValidVoters(countingConfig *CountingConfig, indicator string) []string 
 		}
 
 		//check and see if the indicator (G_UG_STATUS) is valid for who we are trying to process
-		if rec[countingConfig.ValidVotersStatusIndex] == indicator {
+		if rec[countingConfig.ValidVotersStatusIndex] == indicator || indicator == "" {
 			email := rec[countingConfig.ValidVotersEmailIndex]
 			// it is technically possible for someone not to have an email
 			// if they vote, then will need to handle as special case

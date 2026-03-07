@@ -13,7 +13,7 @@ func StepTwo(votes []util.Vote, alreadyVoted *[]string) ([]util.Vote, []util.Vot
 
 	var logMessages []string
 
-	var validVotes []util.Vote
+	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
 	var votedToday []string
 

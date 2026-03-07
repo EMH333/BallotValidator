@@ -30,9 +30,9 @@ type CountingConfig struct {
 	// config for grad vs undergrad ballot selection
 	// start includes first time to remove
 	// end is first item after the ones to remove
-	StepThreeChoiceIndex int
-	StepThreeStartIndex  int
-	StepThreeEndIndex    int
+	StepThreeChoiceIndex       int
+	StepThreeStartIndex        int
+	StepThreeEndIndexExclusive int
 
 	// csv columns and offsets for each position
 	TallyUndergradeSenateOptionsIndex int

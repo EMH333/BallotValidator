@@ -11,7 +11,7 @@
     "ImportID": 8,
     "StepThreeChoiceIndex": 34,
     "StepThreeStartIndex": 35,
-    "StepThreeEndIndex": 38,
+    "StepThreeEndIndexExclusive": 39,
     "TallyUndergradeSenateOptionsIndex": 35,
     "TallyGraduateSenateOptionsIndex": 37,
     "TallySenateWritinsCount": 1,

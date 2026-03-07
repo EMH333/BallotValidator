@@ -33,20 +33,17 @@ func NormalizeVote(countingConfig *CountingConfig, candidates []string, vote str
 	// normalize pres/vp candidates into same form as ballot
 	vote = strings.ReplaceAll(vote, " & ", " and ")
 
-	//TODO add removal of entrys found to be invalid
-	//TODO add subsitution for valid but ill-formed entrys
-	//both should happen after the trim/upper
-
 	crossCheck := vote
 
 	// replace write-in entries with the real candidate
 	// vote = strings.ReplaceAll(vote, "ALL CAPS FROM NORMALIZATION", "normal")
 	for _, candidate := range candidates {
 		vote = strings.ReplaceAll(vote, strings.ToUpper(candidate), candidate)
-	}
 
-	if crossCheck != vote {
-		return vote
+		// early return if normalized
+		if vote != crossCheck {
+			return vote
+		}
 	}
 
 	return vote

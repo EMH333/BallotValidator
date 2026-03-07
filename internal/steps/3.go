@@ -13,28 +13,30 @@ func StepThree(countingConfig *util.CountingConfig, votes []util.Vote, validVote
 
 	var logMessages []string
 
-	var validVotes []util.Vote
+	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
 
 	for _, v := range votes {
 		beginningColumns := len(v.Raw)
 
-		if slices.Contains(*validVotersGraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Graduate Student" {
+		choice := v.Raw[countingConfig.StepThreeChoiceIndex]
+
+		if choice != "Graduate Student" && slices.Contains(*validVotersGraduate, v.ONID) {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]
-			end := v.Raw[countingConfig.StepThreeEndIndex:]
-			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndex-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
+			end := v.Raw[countingConfig.StepThreeEndIndexExclusive:]
+			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndexExclusive-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
-			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+v.Raw[countingConfig.StepThreeChoiceIndex])
-		} else if slices.Contains(*validVotersUndergraduate, v.ONID) && v.Raw[countingConfig.StepThreeChoiceIndex] != "Undergraduate Student" {
+			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be graduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+choice)
+		} else if choice != "Undergraduate Student" && slices.Contains(*validVotersUndergraduate, v.ONID) {
 			invalidVotes = append(invalidVotes, v) //not actually invalid, just copied directly over, valid will actually fix it
 			//clear the all rows voting for reps
 			start := v.Raw[:countingConfig.StepThreeStartIndex]
-			end := v.Raw[countingConfig.StepThreeEndIndex:]
-			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndex-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
+			end := v.Raw[countingConfig.StepThreeEndIndexExclusive:]
+			v.Raw = append(start, make([]string, countingConfig.StepThreeEndIndexExclusive-countingConfig.StepThreeStartIndex)...) //nolint:gocritic
 			v.Raw = append(v.Raw, end...)
-			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+v.Raw[countingConfig.StepThreeChoiceIndex])
+			logMessages = append(logMessages, "Incorrect representatives vote from "+v.ONID+" (supposed to be undergraduate) with response ID "+v.ID+" at "+v.Timestamp.Format("2006-Jan-02 15:04:05")+" was "+choice)
 		}
 
 		endColumns := len(v.Raw)

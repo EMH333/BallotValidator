@@ -84,7 +84,7 @@ func TestLoadValidVoters(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LoadValidVoters(tt.args.config, tt.args.gradorund); !reflect.DeepEqual(got, tt.want) {
+			if got := LoadValidVoters(tt.args.config, LoadFileToReader(tt.args.config.ValidVotersFile), tt.args.gradorund); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LoadValidVoters() = %v, want %v", got, tt.want)
 			}
 		})

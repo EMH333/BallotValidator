@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -60,7 +62,7 @@ func main() {
 	log.Println("Seed:", seed)
 
 	log.Printf("Loading counting config from: %s", countingConfigFile)
-	coutingConfig := util.LoadCountingConfig(countingConfigFile)
+	countingConfig := util.LoadCountingConfig(countingConfigFile)
 
 	_, err := os.Stat("output")
 	if os.IsNotExist(err) && os.Mkdir("output", 0o755) != nil {
@@ -69,16 +71,28 @@ func main() {
 
 	// Load the valid voters
 	log.Println("Loading valid voters...")
-	validVotersGraduate = util.LoadValidVoters(&coutingConfig, "G")
-	validVotersUndergrad = util.LoadValidVoters(&coutingConfig, "UG")
-	validVotersUndefined = util.LoadValidVoters(&coutingConfig, "INTO non-UG/G")
+	//TODO eventually handle this better
+	validVotersFile := util.LoadFileToReader(countingConfig.ValidVotersFile)
+	validVotersFileBytes, err := io.ReadAll(validVotersFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	validVotersFileContents := string(validVotersFileBytes)
+	validVotersGraduate = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "G")
+	validVotersUndergrad = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "UG")
+	validVotersUndefined = util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), "INTO non-UG/G")
+	validVotersTotal := len(util.LoadValidVoters(&countingConfig, bytes.NewBufferString(validVotersFileContents), ""))
+	validVotersTotalActual := len(validVotersGraduate) + len(validVotersUndergrad) + len(validVotersUndefined)
 	log.Printf("There are %d valid voters for graduate students\n", len(validVotersGraduate))
 	log.Printf("There are %d valid voters for undergrad students\n", len(validVotersUndergrad))
 	log.Printf("There are %d valid voters for undefined students\n", len(validVotersUndefined))
+	if validVotersTotal != validVotersTotalActual {
+		log.Printf("There are %d valid voters total, which should add up to %d\n", validVotersTotalActual, validVotersTotal)
+	}
 
 	// Load the already voted
 	log.Printf("Loading already voted up to day %d...\n", startDay)
-	alreadyVotedPrevious = util.LoadAlreadyVoted(&coutingConfig, int64(startDay))
+	alreadyVotedPrevious = util.LoadAlreadyVoted(&countingConfig, int64(startDay))
 	log.Printf("%d students have already voted\n", len(alreadyVotedPrevious))
 	// print warning to make sure results are accurate
 	if startDay != endDay && len(alreadyVotedPrevious) > 0 {
@@ -87,7 +101,7 @@ func main() {
 
 	// Load the votes
 	log.Println("Loading votes...")
-	votes := util.LoadVotesCSV(&coutingConfig, "data/ballots/"+dataFile, startDay, endDay)
+	votes := util.LoadVotesCSV(&countingConfig, "data/ballots/"+dataFile, startDay, endDay)
 	log.Printf("%d votes loaded for day %d through %d\n", len(votes), startDay, endDay)
 	util.StoreVotes(votes, "original-"+dayToDayFormat+".csv")
 
@@ -117,7 +131,7 @@ func main() {
 	// step three: grad/undergrad
 	log.Println()
 	log.Println("Step 3: Grad/undergrad")
-	validPostThree, invalidPostThree, threeSummary := steps.StepThree(&coutingConfig, validPostTwo, &validVotersGraduate, &validVotersUndergrad)
+	validPostThree, invalidPostThree, threeSummary := steps.StepThree(&countingConfig, validPostTwo, &validVotersGraduate, &validVotersUndergrad)
 	util.StoreVotes(validPostThree, "3-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(invalidPostThree, "3-modified-"+dayToDayFormat+".csv")
 	util.StoreSummary(threeSummary, "3-summary-"+dayToDayFormat+".txt")
@@ -140,7 +154,7 @@ func main() {
 	// For students only given the option to select one SFC At-Large candidate
 	log.Println()
 	log.Println("Step 5: Cure SFC At-Large")
-	postCure, cureInvalidVotes, curedBallotSummary, cureSummary := steps.StepCure(&coutingConfig, postFour, "data/ballots/SFCAL-Mar-6-Final.csv", "data/validVotersSfcal.csv")
+	postCure, cureInvalidVotes, curedBallotSummary, cureSummary := steps.StepCure(&countingConfig, postFour, "data/ballots/SFCAL-Mar-6-Final.csv", "data/validVotersSfcal.csv")
 	util.StoreVotes(postCure, "c-valid-"+dayToDayFormat+".csv")
 	util.StoreVotes(cureInvalidVotes, "c-modified-"+dayToDayFormat+".csv")
 	util.StoreStringArrayFile(curedBallotSummary, "c-summary-"+dayToDayFormat+".csv", false)
@@ -151,7 +165,7 @@ func main() {
 
 	//only figure out the winners if we are across multiple days
 	if startDay != endDay {
-		steps.StepFourtyTwo(&coutingConfig, postCure, "output/results")
+		steps.StepFourtyTwo(&countingConfig, postCure, "output/results")
 	} else {
 		log.Println("Not running step 42, only one day")
 		log.Println("Adding already voted to the already voted data directory")

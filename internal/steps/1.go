@@ -12,13 +12,13 @@ func StepOne(votes []util.Vote, validVotersGraduate, validVotersUndergraduate, v
 
 	var messageLog []string
 
-	var validVotes []util.Vote
+	validVotes := make([]util.Vote, 0, initialSize)
 	var invalidVotes []util.Vote
 
 	for _, v := range votes {
-		if slices.Contains(*validVotersGraduate, v.ONID) {
+		if slices.Contains(*validVotersUndergraduate, v.ONID) {
 			validVotes = append(validVotes, v)
-		} else if slices.Contains(*validVotersUndergraduate, v.ONID) {
+		} else if slices.Contains(*validVotersGraduate, v.ONID) {
 			validVotes = append(validVotes, v)
 		} else if slices.Contains(*validVotersUndefined, v.ONID) {
 			validVotes = append(validVotes, v)

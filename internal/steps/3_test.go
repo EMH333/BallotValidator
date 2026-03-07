@@ -43,7 +43,13 @@ func TestStepThreeUndergradWrong(t *testing.T) {
 	var validGrad = []string{}
 	var validUndergrad = []string{"abc", "efg", "hij", "lmn", "opq"}
 
-	valid, invalid, _ := StepThree(&util.CountingConfig{StepThreeChoiceIndex: 0}, votes, &validGrad, &validUndergrad)
+	config := &util.CountingConfig{
+		StepThreeChoiceIndex:       0,
+		StepThreeStartIndex:        1,
+		StepThreeEndIndexExclusive: 3,
+	}
+
+	valid, invalid, _ := StepThree(config, votes, &validGrad, &validUndergrad)
 
 	if len(valid) != len(votes) {
 		t.Errorf("Valid voters was %d, expected %d", len(valid), len(votes))
@@ -51,6 +57,15 @@ func TestStepThreeUndergradWrong(t *testing.T) {
 
 	if len(invalid) != 1 {
 		t.Errorf("Invalid voters was %d, expected 1", len(invalid))
+	}
+
+	for _, v := range valid {
+		if v.Raw[0] == "Graduate Student" && (v.Raw[1] != "" || v.Raw[2] != "") {
+			t.Errorf("Expected Undergrad columns to be empty, was %v", v.Raw)
+		}
+		if v.Raw[0] == "Undergraduate Student" && (v.Raw[1] == "" || v.Raw[2] == "") {
+			t.Errorf("Expected Undergraduate columns to be filed, was %v", v.Raw)
+		}
 	}
 }
 
@@ -66,7 +81,13 @@ func TestStepThreeGradWrong(t *testing.T) {
 	var validGrad = []string{"abc", "efg", "hij", "lmn", "opq"}
 	var validUndergrad = []string{}
 
-	valid, invalid, _ := StepThree(&util.CountingConfig{StepThreeChoiceIndex: 0}, votes, &validGrad, &validUndergrad)
+	config := &util.CountingConfig{
+		StepThreeChoiceIndex:       0,
+		StepThreeStartIndex:        1,
+		StepThreeEndIndexExclusive: 3,
+	}
+
+	valid, invalid, _ := StepThree(config, votes, &validGrad, &validUndergrad)
 
 	if len(valid) != len(votes) {
 		t.Errorf("Valid voters was %d, expected %d", len(valid), len(votes))
@@ -74,5 +95,14 @@ func TestStepThreeGradWrong(t *testing.T) {
 
 	if len(invalid) != 1 {
 		t.Errorf("Invalid voters was %d, expected 1", len(invalid))
+	}
+
+	for _, v := range valid {
+		if v.Raw[0] == "Undergraduate Student" && (v.Raw[1] != "" || v.Raw[2] != "") {
+			t.Errorf("Expected Undergrad columns to be empty, was %v", v.Raw)
+		}
+		if v.Raw[0] == "Graduate Student" && (v.Raw[1] == "" || v.Raw[2] == "") {
+			t.Errorf("Expected Undergraduate columns to be filed, was %v", v.Raw)
+		}
 	}
 }
